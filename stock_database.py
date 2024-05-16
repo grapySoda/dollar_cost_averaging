@@ -87,8 +87,8 @@ class StockDatabase:
             ]
             self._stockDividend["date"] = pd.to_datetime(self._stockDividend["date"])
 
-            if not os.path.exists(name):
-                os.makedirs(name)
+            if not os.path.exists("database/{}".format(name)):
+                os.makedirs("database/{}".format(name))
             self._stockDividend.to_csv(
                 "database/{}/{}.csv".format("taiwan_stock_dividend", self._stock_id),
                 index=False,
