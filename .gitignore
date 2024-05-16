@@ -160,4 +160,4 @@ cython_debug/
 #.idea/
 
 token.txt
-taiwan_stock_dividend/
+database/

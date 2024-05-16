@@ -26,7 +26,7 @@ if __name__ == "__main__":
     for date in date_iterator:
 
         if date == nextDividendDay:
-            print("{}, {}".format(date, stock6208.getDividendTotalCash(date)))
+            # print("{}, {}".format(date, stock6208.getDividendTotalCash(date)))
             nextDividendDay = stock6208.getNextDividendDay(date)
 
     # end_time = time.time()

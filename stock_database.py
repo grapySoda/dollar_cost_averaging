@@ -7,13 +7,14 @@ from FinMind.data import DataLoader
 class StockDatabase:
 
     def __init__(self, stock_id, token):
-        self._startDate = datetime.date(1960, 4, 15)
-        self._endDate = datetime.date.today()
+        self._start_date = datetime.date(1960, 4, 15)
+        self._end_date = datetime.date.today()
         self._stock_id = stock_id
         self._api = DataLoader()
         self._api.login_by_token(api_token=token)
 
         self.getStockDividend()
+        self.getStockPrice()
 
     def str2date(self, date_str):
         return datetime.datetime.strptime(date_str, "%Y-%m-%d").date()
@@ -53,6 +54,31 @@ class StockDatabase:
         else:
             return closest_date_row["TotalCash"]
 
+    def getStockPrice(self):
+        name = "taiwan_stock_daily"
+        filePath = "database/{}/{}.csv".format(name, self._stock_id)
+
+        if os.path.exists(filePath):
+            print("Find {}".format(filePath))
+            self._stockPrice = pd.read_csv(filePath)
+            self._stockPrice["date"] = pd.to_datetime(self._stockPrice["date"])
+        else:
+            print("Start to download {}".format(filePath))
+            self._stockPrice = self._api.taiwan_stock_daily(
+                stock_id=self._stock_id,
+                start_date=self._start_date,
+                end_date=self._end_date
+            )
+
+            self._stockPrice["date"] = pd.to_datetime(self._stockPrice["date"])
+
+            if not os.path.exists("database/{}".format(name)):
+                os.makedirs("database/{}".format(name))
+            self._stockPrice.to_csv(
+                "database/{}/{}.csv".format(name, self._stock_id),
+                index=False,
+            )
+
     def getStockDividend(self):
         name = "taiwan_stock_dividend"
         filePath = "database/{}/{}.csv".format(name, self._stock_id)
@@ -65,7 +91,7 @@ class StockDatabase:
             print("Start to download {}".format(filePath))
             self._stockDividend = self._api.taiwan_stock_dividend(
                 stock_id=self._stock_id,
-                start_date=self._startDate,
+                start_date=self._start_date,
             )
 
             self._stockDividend["TotalStock"] = (
@@ -90,6 +116,6 @@ class StockDatabase:
             if not os.path.exists("database/{}".format(name)):
                 os.makedirs("database/{}".format(name))
             self._stockDividend.to_csv(
-                "database/{}/{}.csv".format("taiwan_stock_dividend", self._stock_id),
+                "database/{}/{}.csv".format(name, self._stock_id),
                 index=False,
             )
