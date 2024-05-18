@@ -27,12 +27,14 @@ class LimitedArray:
 
 class Stock:
 
-    def __init__(self, stock_id, token):
+    def __init__(self, id, token):
         self._start_date = datetime.date(1960, 4, 15)
         self._end_date = datetime.date.today()
-        self._stock_id = stock_id
+        self._id = id
         self._api = DataLoader()
         self._api.login_by_token(api_token=token)
+        self._cost = 0
+        self._shares = 0
 
         self.getPriceDatabase()
         self.getDividendDatabase()
@@ -113,7 +115,7 @@ class Stock:
 
     def getPriceDatabase(self):
         name = "taiwan_stock_daily"
-        filePath = "database/{}/{}.csv".format(name, self._stock_id)
+        filePath = "database/{}/{}.csv".format(name, self._id)
 
         if os.path.exists(filePath):
             print("Find {}".format(filePath))
@@ -122,7 +124,7 @@ class Stock:
         else:
             print("Start to download {}".format(filePath))
             self._price = self._api.taiwan_stock_daily(
-                stock_id=self._stock_id,
+                stock_id=self._id,
                 start_date=self._start_date,
                 end_date=self._end_date,
             )
@@ -141,13 +143,13 @@ class Stock:
             if not os.path.exists("database/{}".format(name)):
                 os.makedirs("database/{}".format(name))
             self._price.to_csv(
-                "database/{}/{}.csv".format(name, self._stock_id),
+                "database/{}/{}.csv".format(name, self._id),
                 index=False,
             )
 
     def getDividendDatabase(self):
         name = "taiwan_stock_dividend"
-        filePath = "database/{}/{}.csv".format(name, self._stock_id)
+        filePath = "database/{}/{}.csv".format(name, self._id)
 
         if os.path.exists(filePath):
             print("Find {}".format(filePath))
@@ -156,7 +158,7 @@ class Stock:
         else:
             print("Start to download {}".format(filePath))
             self._dividend = self._api.taiwan_stock_dividend(
-                stock_id=self._stock_id,
+                stock_id=self._id,
                 start_date=self._start_date,
             )
 
@@ -182,6 +184,6 @@ class Stock:
             if not os.path.exists("database/{}".format(name)):
                 os.makedirs("database/{}".format(name))
             self._dividend.to_csv(
-                "database/{}/{}.csv".format(name, self._stock_id),
+                "database/{}/{}.csv".format(name, self._id),
                 index=False,
             )
