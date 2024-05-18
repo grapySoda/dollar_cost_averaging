@@ -5,7 +5,6 @@ from FinMind.data import DataLoader
 import matplotlib.pyplot as plt
 
 
-# from backtest.dealer import Dealer
 class LimitedArray:
     def __init__(self, max_size):
         self.window = []
@@ -26,7 +25,7 @@ class LimitedArray:
             self.array.append(num)
 
 
-class StockDatabase:
+class Stock:
 
     def __init__(self, stock_id, token):
         self._start_date = datetime.date(1960, 4, 15)
@@ -42,7 +41,6 @@ class StockDatabase:
         mask = (self._price["date"] >= start_date) & (self._price["date"] <= end_date)
         df_filtered = self._price.loc[mask]
 
-        # df_filtered.replace(0, pd.NA, inplace=True)
         df_filtered.dropna(
             subset=["5MA", "20MA", "60MA", "240MA"], how="all", inplace=True
         )
@@ -69,7 +67,6 @@ class StockDatabase:
     def isSendDividendToday(self, input_date):
         self._dividend["date"] = pd.to_datetime(self._dividend["date"])
         if input_date in self._dividend["date"].astype(str).values:
-            print("Send")
             return True
         else:
             return False
