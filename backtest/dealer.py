@@ -40,8 +40,8 @@ class Dealer:
     def sell(self, path):
         return False
 
-    def plot(self, id):
-        self._stocks[id].plot(self._strat_date, self._end_date)
+    def plot(self, id, plotList):
+        self._stocks[id].plot(self._strat_date, self._end_date, plotList)
 
     def getClosePrice(self, id, date):
         df = self._stocks[id]._price
