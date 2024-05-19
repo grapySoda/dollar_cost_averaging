@@ -39,22 +39,18 @@ class Stock:
         self.getPriceDatabase()
         self.getDividendDatabase()
 
-    def plot(self, start_date, end_date):
+    def plot(self, start_date, end_date, plotList):
         mask = (self._price["date"] >= start_date) & (self._price["date"] <= end_date)
         df_filtered = self._price.loc[mask]
 
-        df_filtered.dropna(
-            subset=["5MA", "20MA", "60MA", "240MA"], how="all", inplace=True
-        )
+        df_filtered.dropna(subset=plotList, how="all", inplace=True)
 
         plt.figure(figsize=(12, 6))
 
         plt.plot(df_filtered["date"], df_filtered["close"], label="Close", linewidth=2)
 
-        plt.plot(df_filtered["date"], df_filtered["5MA"], label="5MA", linewidth=1)
-        plt.plot(df_filtered["date"], df_filtered["20MA"], label="20MA", linewidth=1)
-        plt.plot(df_filtered["date"], df_filtered["60MA"], label="60MA", linewidth=1)
-        plt.plot(df_filtered["date"], df_filtered["240MA"], label="240MA", linewidth=1)
+        for label in plotList:
+            plt.plot(df_filtered["date"], df_filtered[label], label=label, linewidth=1)
 
         plt.title("Stock Data")
         plt.xlabel("Date")

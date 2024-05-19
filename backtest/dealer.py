@@ -47,7 +47,11 @@ class Dealer:
         df = self._stocks[id]._price
         filtered_df = df[df["date"] == date]
         if not filtered_df.empty:
-            self._latestClosePrice = filtered_df["close"].values[0]
-            return self._latestClosePrice
+            return filtered_df["close"].values[0]
         else:
             return None
+
+    def getDateIterator(self, id):
+        return self._stocks[id]._price["date"].tolist()
+
+    # def updateInfo(self, id):

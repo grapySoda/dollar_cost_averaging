@@ -11,6 +11,7 @@ import time
 
 START_DATE = "2012-07-17"
 END_DATE = "2014-07-17"
+MONTHLY_INVESTMENT = 36000
 
 if __name__ == "__main__":
     try:
@@ -23,14 +24,9 @@ if __name__ == "__main__":
 
     dealer = Dealer(token, START_DATE, END_DATE)
     dealer.add("006208")
-    dealer.plot("006208")
 
-    # stocks = {}
-    # stocks["006208"] = Stock("006208", token)
-    # stock6208 = Stock("006208", token)
-
-    date_iterator = pd.date_range(start=START_DATE, end=END_DATE, normalize=True)
-    date_iterator = date_iterator.date
+    date_iterator = dealer.getDateIterator("006208")
+    # date_iterator = date_iterator.date
 
     # start_time = time.time()
     # nextDividendDay = stock6208.getNextDividendDay(START_DATE)
