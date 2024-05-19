@@ -12,20 +12,29 @@ class Dealer:
         self._token = token
         self._strat_date = strat_date
         self._end_date = end_date
-        self._commissionRatio = commissionRatio
+        if commissionRatio > 1.0 or commissionRatio == 0.0:
+            self._commissionRatio = commissionRatio
+        else:
+            self._commissionRatio = 1 + commissionRatio
         self._commissionCash = commissionCash
 
     def add(self, id):
         self._stocks[id] = Stock(id, self._token)
 
-    def buy(self, id, shares):
-        if self.commissionRatio != 0.0:
-            cost = self._token * self._latestClosePrice * self.commissionRatio
-        elif self.commissionCash != 0:
-            cost = self._token * self._latestClosePrice + self.commissionCash
+    def buy(self, id, date, cash):
+        shares = 0
+        cost = 0
+        currentPrice = self.getClosePrice(id, date)
+        if self._commissionRatio != 0.0:
+            shares = int(cash / (self.commissionRatio * currentPrice))
+            cost = shares * currentPrice * self.commissionRatio
+        elif self._commissionCash != 0:
+            shares = int((cash - self.commissionCash) / currentPrice)
+            cost = shares * currentPrice + self.commissionCash
 
         self._stocks[id]._shares += shares
         self._stocks[id]._cost += cost
+        self._cash += cash - cost
         return False
 
     def sell(self, path):
