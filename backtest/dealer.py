@@ -26,11 +26,11 @@ class Dealer:
         cost = 0
         currentPrice = self.getClosePrice(id, date)
         if self._commissionRatio != 0.0:
-            shares = int(cash / (self.commissionRatio * currentPrice))
-            cost = shares * currentPrice * self.commissionRatio
+            shares = int(cash / (self._commissionRatio * currentPrice))
+            cost = int(shares * currentPrice * self._commissionRatio)
         elif self._commissionCash != 0:
             shares = int((cash - self.commissionCash) / currentPrice)
-            cost = shares * currentPrice + self.commissionCash
+            cost = int(shares * currentPrice + self.commissionCash)
 
         self._stocks[id]._shares += shares
         self._stocks[id]._cost += cost
@@ -52,6 +52,10 @@ class Dealer:
             return None
 
     def getDateIterator(self, id):
-        return self._stocks[id]._price["date"].tolist()
+        mask = (self._stocks[id]._price["date"] >= pd.to_datetime(self._strat_date)) & (
+            self._stocks[id]._price["date"] <= pd.to_datetime(self._end_date)
+        )
+
+        return self._stocks[id]._price.loc[mask, "date"].tolist()
 
     # def updateInfo(self, id):

@@ -9,8 +9,11 @@ import time
 # START_DATE = "1960-4-15"
 # END_DATE = "2022-11-20"
 
-START_DATE = "2012-07-17"
-END_DATE = "2014-07-17"
+# START_DATE = "2012-07-17"
+# END_DATE = "2014-07-17"
+
+START_DATE = "2021-07-01"
+END_DATE = "2024-05-17"
 MONTHLY_INVESTMENT = 36000
 
 if __name__ == "__main__":
@@ -22,7 +25,7 @@ if __name__ == "__main__":
         print("Error: token.txt not found.")
         exit()
 
-    dealer = Dealer(token, START_DATE, END_DATE)
+    dealer = Dealer(token, START_DATE, END_DATE, commissionRatio=0.1425)
     dealer.add("006208")
 
     date_iterator = dealer.getDateIterator("006208")
@@ -39,16 +42,20 @@ if __name__ == "__main__":
             prev_month = current_month
             dealer.buy("006208", date, MONTHLY_INVESTMENT)
 
-        # dealer.updateInfo("006208")
+    print("dealer[006208]._shares: ", f'{dealer._stocks["006208"]._shares:,}')
+    print("dealer[006208]._cost: ", f'{dealer._stocks["006208"]._cost:,}')
+    print("cash: ", f"{dealer._cash:,}")
 
-        # if date == nextDividendDay:
-        # print(
-        #     "{}, {}".format(
-        #         date, stocks["006208"].getDividendDatabaseTotalCash(date)
-        #     )
-        # )
-        # nextDividendDay = stock6208.getNextDividendDay(date)
-        # nextDividendDay = stocks["006208"].getNextDividendDay(date)
+    # dealer.updateInfo("006208")
+
+    # if date == nextDividendDay:
+    # print(
+    #     "{}, {}".format(
+    #         date, stocks["006208"].getDividendDatabaseTotalCash(date)
+    #     )
+    # )
+    # nextDividendDay = stock6208.getNextDividendDay(date)
+    # nextDividendDay = stocks["006208"].getNextDividendDay(date)
 
     # end_time = time.time()
     # print("Excution time：", end_time - start_time, " sec")
