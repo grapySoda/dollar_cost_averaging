@@ -29,8 +29,8 @@ class Dealer:
             shares = int(cash / (self._commissionRatio * currentPrice))
             cost = int(shares * currentPrice * self._commissionRatio)
         elif self._commissionCash != 0:
-            shares = int((cash - self.commissionCash) / currentPrice)
-            cost = int(shares * currentPrice + self.commissionCash)
+            shares = int((cash - self._commissionCash) / currentPrice)
+            cost = int(shares * currentPrice + self._commissionCash)
 
         self._stocks[id]._shares += shares
         self._stocks[id]._cost += cost
