@@ -1,6 +1,6 @@
 from .stock import Stock
 import pandas as pd
-import threading
+import matplotlib.pyplot as plt
 
 
 class Dealer:
@@ -8,6 +8,7 @@ class Dealer:
     def __init__(
         self, token, strat_date, end_date, commissionRatio=0.0, commissionCash=0
     ):
+        self._figures = 1
         self._cash = 0
         self._stocks = {}
         self._token = token
@@ -41,7 +42,11 @@ class Dealer:
         return False
 
     def plot(self, id, plotList):
-        self._stocks[id].plot(self._strat_date, self._end_date, plotList)
+        self._stocks[id].plot(self._strat_date, self._end_date, plotList, self._figures)
+        self._figures += 1
+
+    def show(self):
+        plt.show()
 
     def getClosePrice(self, id, date):
         df = self._stocks[id]._price
