@@ -3,7 +3,9 @@ import datetime
 import pandas as pd
 from FinMind.data import DataLoader
 import matplotlib.pyplot as plt
+from matplotlib.dates import DateFormatter
 from matplotlib.ticker import FuncFormatter
+from matplotlib.widgets import Cursor
 
 
 class LimitedArray:
@@ -67,8 +69,8 @@ class Stock:
             return f"{x:,.0f}"
 
         plt.gca().yaxis.set_major_formatter(FuncFormatter(thousands_formatter))
-
-        # plt.show()
+        plt.grid(True)
+        # plt.gca().xaxis.set_major_formatter(DateFormatter("%Y-%m-%d"))
 
     def str2date(self, date_str):
         return datetime.datetime.strptime(date_str, "%Y-%m-%d").date()
@@ -159,6 +161,7 @@ class Stock:
 
             self._price["DailyAsset"] = 0
             self._price["DailyCost"] = 0
+            self._price["ROI"] = 0
 
             if not os.path.exists("database/{}".format(name)):
                 os.makedirs("database/{}".format(name))

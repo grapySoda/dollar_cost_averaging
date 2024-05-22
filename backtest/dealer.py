@@ -1,6 +1,7 @@
 from .stock import Stock
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib.widgets import Cursor
 
 
 class Dealer:
@@ -46,6 +47,7 @@ class Dealer:
         self._figures += 1
 
     def show(self):
+        cursor = Cursor(plt.gca(), useblit=True, color="red", linewidth=1)
         plt.show()
 
     def getClosePrice(self, id, date):
@@ -98,6 +100,7 @@ class Dealer:
             currentPrice * self._stocks[id]._shares + self._stocks[id]._asset
         )
         dailyCost = self._stocks[id]._cost
+        ROI = (dailyAsset / dailyCost - 1) * 100
 
         self._stocks[id]._price.loc[
             self._stocks[id]._price["date"] == date, "DailyAsset"
@@ -105,6 +108,9 @@ class Dealer:
         self._stocks[id]._price.loc[
             self._stocks[id]._price["date"] == date, "DailyCost"
         ] = dailyCost
+        self._stocks[id]._price.loc[
+            self._stocks[id]._price["date"] == date, "ROI"
+        ] = ROI
 
     def backtestEnd(self, id):
         self._stocks[id]._price["DailyAsset"] = self._stocks[id]._dailyAsset

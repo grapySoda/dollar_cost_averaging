@@ -12,8 +12,14 @@ import matplotlib.pyplot as plt
 # START_DATE = "1960-4-15"
 # END_DATE = "2022-11-20"
 
-START_DATE = "1960-4-15"
-END_DATE = "2024-05-17"
+# START_DATE = "1960-4-15"
+# END_DATE = "2024-11-20"
+
+START_DATE = "2004-4-15"
+END_DATE = "2008-11-20"
+
+# START_DATE = "2008-4-15"
+# END_DATE = "2011-05-17"
 
 # START_DATE = "2012-07-17"
 # END_DATE = "2014-07-17"
@@ -83,12 +89,12 @@ if __name__ == "__main__":
 
     # plotList = ["close","5MA", "20MA", "60MA", "240MA", "DailyAsset"]
     plotList = ["close", "5MA", "20MA", "60MA", "240MA"]
-    # dealer.plot(TOGET_STOCK, plotList)
     dealer.plot(TOGET_STOCK, plotList)
 
     plotList = ["DailyAsset", "DailyCost"]
-    # plotList = ["DailyAsset"]
-    # dealer.plot(TOGET_STOCK, plotList)
+    dealer.plot(TOGET_STOCK, plotList)
+
+    plotList = ["ROI"]
     dealer.plot(TOGET_STOCK, plotList)
 
     dealer.show()
