@@ -3,6 +3,7 @@ import datetime
 import pandas as pd
 from FinMind.data import DataLoader
 import matplotlib.pyplot as plt
+from matplotlib.ticker import FuncFormatter
 
 
 class LimitedArray:
@@ -33,8 +34,15 @@ class Stock:
         self._id = id
         self._api = DataLoader()
         self._api.login_by_token(api_token=token)
+        self._dailyAsset = []
+        self._asset = 0
         self._cost = 0
         self._shares = 0
+        self._dividendIndex = 0
+        self._dividendStock = None
+        self._dividendCash = None
+        self._accumulatedDividends = 0
+        self._accumulatedStock = 0
 
         self.getPriceDatabase()
         self.getDividendDatabase()
@@ -57,6 +65,11 @@ class Stock:
         plt.ylabel("Value")
         plt.legend()
 
+        def thousands_formatter(x, pos):
+            return f"{x:,.0f}"
+
+        plt.gca().yaxis.set_major_formatter(FuncFormatter(thousands_formatter))
+
         plt.show()
 
     def str2date(self, date_str):
@@ -69,15 +82,25 @@ class Stock:
         else:
             return False
 
-    def getNextDividendDay(self, input_date):
-        _input_date = pd.to_datetime(input_date)
+    # def getNextDividendDay(self, input_date):
+    #     _input_date = pd.to_datetime(input_date)
 
-        next_date = self._dividend[self._dividend["date"] > _input_date]["date"].min()
+    #     next_date = self._dividend[self._dividend["date"] > _input_date]["date"].min()
 
-        if pd.isnull(next_date):
-            return None
+    #     if pd.isnull(next_date):
+    #         return None
 
-        return self.str2date(next_date.strftime("%Y-%m-%d"))
+    #     return self.str2date(next_date.strftime("%Y-%m-%d"))
+
+    def getNextDividendDay(self):
+        if self._dividendIndex < len(self._dividend):
+            row = self._dividend.iloc[self._dividendIndex]
+            self._dividendIndex += 1
+            self._dividendStock = row["TotalStock"]
+            self._dividendCash = row["TotalCash"]
+            return row["date"]
+        else:
+            return None  # No more dates available
 
     def getDividendDatabaseTotalCash(self, input_date):
         _input_date = pd.to_datetime(input_date)
@@ -135,6 +158,9 @@ class Stock:
                 self._price["60MA"],
                 self._price["240MA"],
             ) = self.getMovingAverage(self._price)
+
+            self._price["DailyAsset"] = 0
+            self._price["DailyCost"] = 0
 
             if not os.path.exists("database/{}".format(name)):
                 os.makedirs("database/{}".format(name))

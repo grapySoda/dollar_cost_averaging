@@ -1,5 +1,6 @@
 from .stock import Stock
 import pandas as pd
+import threading
 
 
 class Dealer:
@@ -35,7 +36,6 @@ class Dealer:
         self._stocks[id]._shares += shares
         self._stocks[id]._cost += cost
         self._cash += cash - cost
-        return False
 
     def sell(self, path):
         return False
@@ -58,4 +58,48 @@ class Dealer:
 
         return self._stocks[id]._price.loc[mask, "date"].tolist()
 
-    # def updateInfo(self, id):
+    def exDividend(self, id):
+        dividendStock = int(
+            self._stocks[id]._dividendStock * self._stocks[id]._shares * 0.9809
+        )
+        dividendCash = int(
+            self._stocks[id]._dividendCash * self._stocks[id]._shares * 0.9809
+        )
+
+        self._stocks[id]._accumulatedDividends += dividendCash
+        self._stocks[id]._accumulatedStock += dividendStock
+        self._stocks[id]._shares += dividendStock
+        self._stocks[id]._asset += dividendCash
+
+    def getShares(self, id):
+        return self._stocks[id]._shares
+
+    def getCosts(self, id):
+        return self._stocks[id]._cost
+
+    def getAccumulatedDividends(self, id):
+        return self._stocks[id]._accumulatedDividends
+
+    def getNextDividendDay(self, id):
+        return self._stocks[id].getNextDividendDay()
+
+    def getLatestAsset(self, id):
+        return int(self._stocks[id]._price.iloc[-1]["DailyAsset"])
+
+    def updateInfo(self, id, date):
+        currentPrice = self.getClosePrice(id, date)
+
+        dailyAsset = int(
+            currentPrice * self._stocks[id]._shares + self._stocks[id]._asset
+        )
+        dailyCost = self._stocks[id]._cost
+
+        self._stocks[id]._price.loc[
+            self._stocks[id]._price["date"] == date, "DailyAsset"
+        ] = dailyAsset
+        self._stocks[id]._price.loc[
+            self._stocks[id]._price["date"] == date, "DailyCost"
+        ] = dailyCost
+
+    def backtestEnd(self, id):
+        self._stocks[id]._price["DailyAsset"] = self._stocks[id]._dailyAsset
