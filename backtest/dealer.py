@@ -24,10 +24,14 @@ class Dealer:
     def add(self, id):
         self._stocks[id] = Stock(id, self._token)
 
-    def buy(self, id, date, cash):
+    def buy(self, id, cash, date=None):
         shares = 0
         cost = 0
-        currentPrice = self.getClosePrice(id, date)
+        if date is not None:
+            currentPrice = self.getValueByDate(id, date, "close")
+        else:
+            currentPrice = self.getCurrentValue(id, "price")
+
         if self._commissionRatio != 0.0:
             shares = int(cash / (self._commissionRatio * currentPrice))
             cost = int(shares * currentPrice * self._commissionRatio)
@@ -50,14 +54,6 @@ class Dealer:
         cursor = Cursor(plt.gca(), useblit=True, color="red", linewidth=1)
         plt.show()
 
-    def getClosePrice(self, id, date):
-        df = self._stocks[id]._price
-        filtered_df = df[df["date"] == date]
-        if not filtered_df.empty:
-            return filtered_df["close"].values[0]
-        else:
-            return None
-
     def getDateIterator(self, id):
         mask = (self._stocks[id]._price["date"] >= pd.to_datetime(self._strat_date)) & (
             self._stocks[id]._price["date"] <= pd.to_datetime(self._end_date)
@@ -77,6 +73,9 @@ class Dealer:
         self._stocks[id]._accumulatedStock += dividendStock
         self._stocks[id]._shares += dividendStock
         self._stocks[id]._asset += dividendCash
+
+    def setCurrentValue(self, id, key, value):
+        self._stocks[id]._current[key] = value
 
     def setValueByDate(self, id, date, key, value):
         self._stocks[id]._price.loc[
@@ -103,17 +102,24 @@ class Dealer:
     def getNextDividendDay(self, id):
         return self._stocks[id].getNextDividendDay()
 
-    def getLatestValue(self, id, key):
+    def getCurrentValue(self, id, key):
         return self._stocks[id]._current[key]
 
-    def getLatestAsset(self, id):
-        return int(self._stocks[id]._price.iloc[-1]["DailyAsset"])
+    def updateInfo(self, id, date):
+        self.setCurrentValue(id, "price", self.getValueByDate(id, date, "close"))
 
-    def updateTodayValue(self, id, key, value):
-        self._stocks[id]._current[key] = value
+        self.setCurrentValue(id, "5MA", self.getValueByDate(id, date, "5MA"))
+        self.setCurrentValue(id, "20MA", self.getValueByDate(id, date, "20MA"))
+        self.setCurrentValue(id, "60MA", self.getValueByDate(id, date, "60MA"))
+        self.setCurrentValue(id, "240MA", self.getValueByDate(id, date, "240MA"))
+
+        self.setCurrentValue(id, "5BIOS", self.getValueByDate(id, date, "5BIOS"))
+        self.setCurrentValue(id, "20BIOS", self.getValueByDate(id, date, "20BIOS"))
+        self.setCurrentValue(id, "60BIOS", self.getValueByDate(id, date, "60BIOS"))
+        self.setCurrentValue(id, "240BIOS", self.getValueByDate(id, date, "240BIOS"))
 
     def updateAsset(self, id, date):
-        currentPrice = self.getClosePrice(id, date)
+        currentPrice = self.getCurrentValue(id, "price")
 
         dailyAsset = int(
             currentPrice * self._stocks[id]._shares + self._stocks[id]._asset
@@ -121,13 +127,10 @@ class Dealer:
         dailyCost = self._stocks[id]._cost
         ROI = (dailyAsset / dailyCost - 1) * 100
 
-        self.updateTodayValue(id, "DailyAsset", dailyAsset)
-        self.updateTodayValue(id, "DailyCost", dailyCost)
-        self.updateTodayValue(id, "ROI", ROI)
+        self.setCurrentValue(id, "DailyAsset", dailyAsset)
+        self.setCurrentValue(id, "DailyCost", dailyCost)
+        self.setCurrentValue(id, "ROI", ROI)
 
         self.setValueByDate(id, date, "DailyAsset", dailyAsset)
         self.setValueByDate(id, date, "DailyCost", dailyCost)
         self.setValueByDate(id, date, "ROI", ROI)
-
-    def backtestEnd(self, id):
-        self._stocks[id]._price["DailyAsset"] = self._stocks[id]._dailyAsset

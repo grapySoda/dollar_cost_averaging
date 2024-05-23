@@ -62,7 +62,7 @@ if __name__ == "__main__":
     prev_month = None
     lastDate = None
     for date in date_iterator:
-        # dealer.updateInfo(TOGET_STOCK, date)
+        dealer.updateInfo(TOGET_STOCK, date)
         if dividendDate is not None:
             if date >= dividendDate:
                 dealer.exDividend(TOGET_STOCK)
@@ -71,10 +71,9 @@ if __name__ == "__main__":
         current_month = date.strftime("%Y-%m")
         if current_month != prev_month:
             prev_month = current_month
-            dealer.buy(TOGET_STOCK, date, MONTHLY_INVESTMENT)
+            # dealer.buy(TOGET_STOCK, MONTHLY_INVESTMENT, date)
+            dealer.buy(TOGET_STOCK, MONTHLY_INVESTMENT)
         dealer.updateAsset(TOGET_STOCK, date)
-
-    # dealer.backtestEnd(TOGET_STOCK)
 
     print("dealer[006208]._shares: ", f"{dealer.getShares(TOGET_STOCK):,}")
     print("dealer[006208]._cost: ", f"{dealer.getCosts(TOGET_STOCK):,}")
@@ -82,7 +81,7 @@ if __name__ == "__main__":
         "dealer[006208]._accumulatedDividends: ",
         f"{dealer.getAccumulatedDividends(TOGET_STOCK):,}",
     )
-    _asset = dealer.getLatestValue(TOGET_STOCK, "DailyAsset")
+    _asset = dealer.getCurrentValue(TOGET_STOCK, "DailyAsset")
     print(
         "Asset: ",
         f"{_asset:,}",
