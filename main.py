@@ -62,7 +62,7 @@ if __name__ == "__main__":
     prev_month = None
     lastDate = None
     for date in date_iterator:
-        dealer.updateInfo(TOGET_STOCK, date)
+        # dealer.updateInfo(TOGET_STOCK, date)
         if dividendDate is not None:
             if date >= dividendDate:
                 dealer.exDividend(TOGET_STOCK)

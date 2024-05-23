@@ -11,21 +11,27 @@ from matplotlib.widgets import Cursor
 class LimitedArray:
     def __init__(self, max_size):
         self.window = []
-        self.array = []
+        self.ma = []
+        self.bios = []
         self.max_size = max_size
 
     def push(self, value):
+        _value = 0
         if len(self.window) == self.max_size:
             self.window.pop(0)
         self.window.append(value)
 
         if len(self.window) < self.max_size:
-            # self.array.append(0)
-            self.array.append(value)
+            self.ma.append(value)
+            _value = value
         else:
             num = sum(self.window) / self.max_size
-            num = f"{num:.2f}"
-            self.array.append(num)
+            num_str = f"{num:.2f}"
+            self.ma.append(num_str)
+            _value = num
+
+        _bios = (value / _value - 1) * 100
+        self.bios.append(_bios)
 
 
 class Stock:
@@ -84,16 +90,6 @@ class Stock:
         else:
             return False
 
-    # def getNextDividendDay(self, input_date):
-    #     _input_date = pd.to_datetime(input_date)
-
-    #     next_date = self._dividend[self._dividend["date"] > _input_date]["date"].min()
-
-    #     if pd.isnull(next_date):
-    #         return None
-
-    #     return self.str2date(next_date.strftime("%Y-%m-%d"))
-
     def getNextDividendDay(self):
         if self._dividendIndex < len(self._dividend):
             row = self._dividend.iloc[self._dividendIndex]
@@ -111,10 +107,6 @@ class Stock:
         closest_date_row = self._dividend.loc[closest_date_index]
 
         if closest_date_row["date"] != _input_date:
-            # next_date_row = self._dividend.loc[
-            #     self._dividend["date"] > _input_date
-            # ].iloc[0]
-            # return next_date_row["TotalCash"]
             return 0.0
         else:
             return closest_date_row["TotalCash"]
@@ -132,7 +124,16 @@ class Stock:
             for ma in maList:
                 ma.push(close)
 
-        return _5ma.array, _20ma.array, _60ma.array, _240ma.array
+        return (
+            _5ma.ma,
+            _20ma.ma,
+            _60ma.ma,
+            _240ma.ma,
+            _5ma.bios,
+            _20ma.bios,
+            _60ma.bios,
+            _240ma.bios,
+        )
 
     def getPriceDatabase(self):
         name = "taiwan_stock_daily"
@@ -159,6 +160,10 @@ class Stock:
                 self._price["20MA"],
                 self._price["60MA"],
                 self._price["240MA"],
+                self._price["5BIOS"],
+                self._price["20BIOS"],
+                self._price["60BIOS"],
+                self._price["240BIOS"],
             ) = self.getMovingAverage(self._price)
 
             if not os.path.exists("database/{}".format(name)):
@@ -171,10 +176,6 @@ class Stock:
         self._price["DailyAsset"] = 0
         self._price["DailyCost"] = 0
         self._price["ROI"] = 0.0
-        self._price["5BIOS"] = 0.0
-        self._price["20BIOS"] = 0.0
-        self._price["60BIOS"] = 0.0
-        self._price["240BIOS"] = 0.0
 
     def getDividendDatabase(self):
         name = "taiwan_stock_dividend"

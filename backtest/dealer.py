@@ -112,36 +112,6 @@ class Dealer:
     def updateTodayValue(self, id, key, value):
         self._stocks[id]._current[key] = value
 
-    def updateInfo(self, id, date):
-        _currentPrice = self.getValueByDate(id, date, "close")
-
-        _5MA = self.getValueByDate(id, date, "5MA")
-        _20MA = self.getValueByDate(id, date, "20MA")
-        _60MA = self.getValueByDate(id, date, "60MA")
-        _240MA = self.getValueByDate(id, date, "240MA")
-
-        _5BIOS = (_currentPrice / _5MA - 1) * 100
-        _20BIOS = (_currentPrice / _20MA - 1) * 100
-        _60BIOS = (_currentPrice / _60MA - 1) * 100
-        _240BIOS = (_currentPrice / _240MA - 1) * 100
-
-        self.updateTodayValue(id, "price", _currentPrice)
-
-        self.updateTodayValue(id, "5MA", _5MA)
-        self.updateTodayValue(id, "20MA", _20MA)
-        self.updateTodayValue(id, "60MA", _60MA)
-        self.updateTodayValue(id, "240MA", _240MA)
-
-        self.updateTodayValue(id, "5BIOS", _5BIOS)
-        self.updateTodayValue(id, "20BIOS", _20BIOS)
-        self.updateTodayValue(id, "60BIOS", _60BIOS)
-        self.updateTodayValue(id, "240BIOS", _240BIOS)
-
-        self.setValueByDate(id, date, "5BIOS", _5BIOS)
-        self.setValueByDate(id, date, "20BIOS", _20BIOS)
-        self.setValueByDate(id, date, "60BIOS", _60BIOS)
-        self.setValueByDate(id, date, "240BIOS", _240BIOS)
-
     def updateAsset(self, id, date):
         currentPrice = self.getClosePrice(id, date)
 
