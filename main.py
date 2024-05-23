@@ -15,8 +15,8 @@ import matplotlib.pyplot as plt
 # START_DATE = "1960-4-15"
 # END_DATE = "2024-11-20"
 
-START_DATE = "2004-4-15"
-END_DATE = "2008-11-20"
+# START_DATE = "2004-4-15"
+# END_DATE = "2008-11-20"
 
 # START_DATE = "2008-4-15"
 # END_DATE = "2011-05-17"
@@ -27,14 +27,15 @@ END_DATE = "2008-11-20"
 # START_DATE = "2021-07-01"
 # END_DATE = "2024-05-17"
 
-# START_DATE = "2012-06-22"
-# END_DATE = "2024-05-17"
+START_DATE = "2012-06-22"
+END_DATE = "2024-05-17"
 
 # START_DATE = "2020-06-22"
 # END_DATE = "2024-05-17"
 
 MONTHLY_INVESTMENT = 36000
-TOGET_STOCK = "0050"
+# TOGET_STOCK = "0050"
+TOGET_STOCK = "006208"
 
 if __name__ == "__main__":
     try:
@@ -61,6 +62,7 @@ if __name__ == "__main__":
     prev_month = None
     lastDate = None
     for date in date_iterator:
+        dealer.updateInfo(TOGET_STOCK, date)
         if dividendDate is not None:
             if date >= dividendDate:
                 dealer.exDividend(TOGET_STOCK)
@@ -70,8 +72,7 @@ if __name__ == "__main__":
         if current_month != prev_month:
             prev_month = current_month
             dealer.buy(TOGET_STOCK, date, MONTHLY_INVESTMENT)
-
-        dealer.updateInfo(TOGET_STOCK, date)
+        dealer.updateAsset(TOGET_STOCK, date)
 
     # dealer.backtestEnd(TOGET_STOCK)
 
@@ -81,9 +82,10 @@ if __name__ == "__main__":
         "dealer[006208]._accumulatedDividends: ",
         f"{dealer.getAccumulatedDividends(TOGET_STOCK):,}",
     )
+    _asset = dealer.getLatestValue(TOGET_STOCK, "DailyAsset")
     print(
         "Asset: ",
-        f"{dealer.getLatestAsset(TOGET_STOCK):,}",
+        f"{_asset:,}",
     )
     print("cash: ", f"{dealer._cash:,}")
 
@@ -94,7 +96,8 @@ if __name__ == "__main__":
     plotList = ["DailyAsset", "DailyCost"]
     dealer.plot(TOGET_STOCK, plotList)
 
-    plotList = ["ROI"]
+    plotList = ["ROI", "5BIOS", "20BIOS", "60BIOS", "240BIOS"]
+    # plotList = ["ROI", "20BIOS"]
     dealer.plot(TOGET_STOCK, plotList)
 
     dealer.show()

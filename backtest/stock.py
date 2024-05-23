@@ -46,6 +46,8 @@ class Stock:
         self._accumulatedDividends = 0
         self._accumulatedStock = 0
 
+        self._current = {}
+
         self.getPriceDatabase()
         self.getDividendDatabase()
 
@@ -159,16 +161,20 @@ class Stock:
                 self._price["240MA"],
             ) = self.getMovingAverage(self._price)
 
-            self._price["DailyAsset"] = 0
-            self._price["DailyCost"] = 0
-            self._price["ROI"] = 0
-
             if not os.path.exists("database/{}".format(name)):
                 os.makedirs("database/{}".format(name))
             self._price.to_csv(
                 "database/{}/{}.csv".format(name, self._id),
                 index=False,
             )
+
+        self._price["DailyAsset"] = 0
+        self._price["DailyCost"] = 0
+        self._price["ROI"] = 0.0
+        self._price["5BIOS"] = 0.0
+        self._price["20BIOS"] = 0.0
+        self._price["60BIOS"] = 0.0
+        self._price["240BIOS"] = 0.0
 
     def getDividendDatabase(self):
         name = "taiwan_stock_dividend"
