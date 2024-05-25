@@ -112,16 +112,6 @@ class Dealer:
     def updateInfo(self, id, date):
         self.setCurrentValue(id, "price", self.getValueByDate(id, date, "close"))
 
-        self.setCurrentValue(id, "5MA", self.getValueByDate(id, date, "5MA"))
-        self.setCurrentValue(id, "20MA", self.getValueByDate(id, date, "20MA"))
-        self.setCurrentValue(id, "60MA", self.getValueByDate(id, date, "60MA"))
-        self.setCurrentValue(id, "240MA", self.getValueByDate(id, date, "240MA"))
-
-        self.setCurrentValue(id, "5BIOS", self.getValueByDate(id, date, "5BIOS"))
-        self.setCurrentValue(id, "20BIOS", self.getValueByDate(id, date, "20BIOS"))
-        self.setCurrentValue(id, "60BIOS", self.getValueByDate(id, date, "60BIOS"))
-        self.setCurrentValue(id, "240BIOS", self.getValueByDate(id, date, "240BIOS"))
-
     def updateAsset(self, id, date):
         currentPrice = self.getCurrentValue(id, "price")
 
