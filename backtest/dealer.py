@@ -96,6 +96,11 @@ class Dealer:
         else:
             return None
 
+    def getDuration(self, id):
+        df = self._stocks[id]._price
+        df["date"] = pd.to_datetime(df["date"])
+        return df.iloc[0]["date"], df.iloc[-1]["date"]
+
     def getShares(self, id):
         return self._stocks[id]._shares
 

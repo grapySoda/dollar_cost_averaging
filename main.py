@@ -50,7 +50,7 @@ if __name__ == "__main__":
         exit()
 
     backtest = Backtest(token, START_DATE, END_DATE, commissionCash=1)
-    backtest.add("006208")
+    backtest.add(TOGET_STOCK)
 
     backtest.run()
 

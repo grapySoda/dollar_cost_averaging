@@ -1,11 +1,11 @@
 from .window import Window
 from .dealer import Dealer
-
+import matplotlib.pyplot as plt
 import time
-from datetime import datetime
-from qbstyles import mpl_style
+import matplotx
 
-mpl_style(True)
+plt.style.use(matplotx.styles.dracula)
+
 MONTHLY_INVESTMENT = 36000
 TAX_TAIWAN = 0.003
 
@@ -20,20 +20,14 @@ class Backtest:
             token, start_date, end_date, commissionRatio, commissionCash
         )
 
-        start = datetime.strptime(start_date, "%Y-%m-%d")
-        end = datetime.strptime(end_date, "%Y-%m-%d")
-        if end.month > start.month or (
-            end.month == start.month and end.day >= start.day
-        ):
-            self._years = end.year - start.year
-        else:
-            self._years = end.year - start.year - 1
-
     def add(self, stock):
         self._stock = stock
         self._dealer.add(stock)
         self._date_iterator = self._dealer.getDateIterator(stock)
         self._dividendDate = self._dealer.getNextDividendDay(stock)
+        start, end = self._dealer.getDuration(stock)
+        duration = end - start
+        self._years = duration.days / 365.25
 
     def run(self):
         start_time = time.time()
@@ -79,6 +73,7 @@ class Backtest:
         costs = f"{int(self.getTotalCosts()):,}"
         tax = f"{int(self.getTotalAsset()*TAX_TAIWAN):,}"
         shares = f"{int(self.getTotalShares()):,}"
+        years = f"{round(float(self._years), 2):,}"
         elapsed = f"{round(float(self._execution_time), 2):,}"
 
         print("{:<16} {:>11} %".format("ROI:", roi))
@@ -88,6 +83,7 @@ class Backtest:
         print("{:<16} {:>11} NTD".format("Total costs:", costs))
         print("{:<16} {:>11} NTD".format("Total tax:", tax))
         print("{:<16} {:>11} shares".format("Total shares:", shares))
+        print("{:<16} {:>11} years".format("Duration:", years))
         print("{:<16} {:>11} seconds".format("Elapsed time:", elapsed))
 
     def getRoi(self):
@@ -101,7 +97,16 @@ class Backtest:
         )
 
     def getIrr(self):
-        return round(float((((self.getRoi() + 1) ** (1 / self._years)) - 1) * 100), 2)
+        return round(
+            float(
+                (
+                    ((self.getTotalAsset() / self.getTotalCosts()) ** (1 / self._years))
+                    - 1
+                )
+                * 100
+            ),
+            2,
+        )
 
     def getTotalAsset(self):
         return round(float(self._dealer.getCurrentValue(self._stock, "DailyAsset")), 2)
