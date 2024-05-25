@@ -96,7 +96,6 @@ class ZoomPan:
             cur_ylim1 = self.ax1.get_ylim()
             if self.ax2:
                 cur_xlim2 = self.ax2.get_xlim()
-                cur_ylim2 = self.ax2.get_ylim()
             xdata = event.xdata  # get event x location
             ydata = event.ydata  # get event y location
             if event.button == "up":
@@ -115,7 +114,6 @@ class ZoomPan:
 
             if self.ax2:
                 new_width2 = (cur_xlim2[1] - cur_xlim2[0]) * scale_factor
-                new_height2 = (cur_ylim2[1] - cur_ylim2[0]) * scale_factor
 
             relx1 = (cur_xlim1[1] - xdata) / (cur_xlim1[1] - cur_xlim1[0])
             rely1 = (cur_ylim1[1] - ydata) / (cur_ylim1[1] - cur_ylim1[0])
@@ -129,12 +127,8 @@ class ZoomPan:
 
             if self.ax2:
                 relx2 = (cur_xlim2[1] - xdata) / (cur_xlim2[1] - cur_xlim2[0])
-                rely2 = (cur_ylim2[1] - ydata) / (cur_ylim2[1] - cur_ylim2[0])
                 self.ax2.set_xlim(
                     [xdata - new_width2 * (1 - relx2), xdata + new_width2 * (relx2)]
-                )
-                self.ax2.set_ylim(
-                    [ydata - new_height2 * (1 - rely2), ydata + new_height2 * (rely2)]
                 )
 
             self.ax1.figure.canvas.draw()
@@ -151,7 +145,6 @@ class ZoomPan:
             self.cur_ylim1 = self.ax1.get_ylim()
             if self.ax2:
                 self.cur_xlim2 = self.ax2.get_xlim()
-                self.cur_ylim2 = self.ax2.get_ylim()
             self.press = self.x0, self.y0, event.xdata, event.ydata
 
         def on_release(event):
@@ -174,7 +167,6 @@ class ZoomPan:
 
             if self.ax2:
                 self.ax2.set_xlim(self.cur_xlim2[0] - dx, self.cur_xlim2[1] - dx)
-                self.ax2.set_ylim(self.cur_ylim2[0] - dy, self.cur_ylim2[1] - dy)
 
             self.ax1.figure.canvas.draw()
             if self.ax2:
