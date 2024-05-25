@@ -78,11 +78,11 @@ class ZoomPan:
         if self.ax2:
             self.init_xlim2 = self.ax2.get_xlim()
             self.init_ylim2 = self.ax2.get_ylim()
-        self.cur_xlim1 = self.ax1.get_xlim()
-        self.cur_ylim1 = self.ax1.get_ylim()
+        self.cur_xlim1 = self.init_xlim1
+        self.cur_ylim1 = self.init_ylim1
         if self.ax2:
-            self.cur_xlim2 = self.ax2.get_xlim()
-            self.cur_ylim2 = self.ax2.get_ylim()
+            self.cur_xlim2 = self.init_xlim2
+            self.cur_ylim2 = self.init_ylim2
         self.x0 = None
         self.y0 = None
         self.x1 = None
@@ -117,22 +117,24 @@ class ZoomPan:
                 new_width2 = (cur_xlim2[1] - cur_xlim2[0]) * scale_factor
                 new_height2 = (cur_ylim2[1] - cur_ylim2[0]) * scale_factor
 
-            relx = (cur_xlim1[1] - xdata) / (cur_xlim1[1] - cur_xlim1[0])
-            rely = (cur_ylim1[1] - ydata) / (cur_ylim1[1] - cur_ylim1[0])
+            relx1 = (cur_xlim1[1] - xdata) / (cur_xlim1[1] - cur_xlim1[0])
+            rely1 = (cur_ylim1[1] - ydata) / (cur_ylim1[1] - cur_ylim1[0])
 
             self.ax1.set_xlim(
-                [xdata - new_width1 * (1 - relx), xdata + new_width1 * (relx)]
+                [xdata - new_width1 * (1 - relx1), xdata + new_width1 * (relx1)]
             )
             self.ax1.set_ylim(
-                [ydata - new_height1 * (1 - rely), ydata + new_height1 * (rely)]
+                [ydata - new_height1 * (1 - rely1), ydata + new_height1 * (rely1)]
             )
 
             if self.ax2:
+                relx2 = (cur_xlim2[1] - xdata) / (cur_xlim2[1] - cur_xlim2[0])
+                rely2 = (cur_ylim2[1] - ydata) / (cur_ylim2[1] - cur_ylim2[0])
                 self.ax2.set_xlim(
-                    [xdata - new_width2 * (1 - relx), xdata + new_width2 * (relx)]
+                    [xdata - new_width2 * (1 - relx2), xdata + new_width2 * (relx2)]
                 )
                 self.ax2.set_ylim(
-                    [ydata - new_height2 * (1 - rely), ydata + new_height2 * (rely)]
+                    [ydata - new_height2 * (1 - rely2), ydata + new_height2 * (rely2)]
                 )
 
             self.ax1.figure.canvas.draw()
