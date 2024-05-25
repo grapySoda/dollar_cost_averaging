@@ -1,9 +1,10 @@
-# from .stock import Stock
 from .window import Window
 from .dealer import Dealer
-import pandas as pd
-import time
 
+import time
+from qbstyles import mpl_style
+
+mpl_style(True)
 MONTHLY_INVESTMENT = 36000
 
 
@@ -55,13 +56,11 @@ class Backtest:
             self._window.addTab(tabName, fig1, ax1, fig2, ax2)
         else:
             name1, list1 = plotList1
-            print("name1: ", name1)
-            print("list1: ", list1)
             fig, ax = self._dealer.genFig(self._stock, name1, list1)
             self._window.addTab(tabName, fig, ax)
 
     def printResult(self):
-        print("{:<16} {:<16}".format("Excution time:", self._execution_time))
+        print("{:<16} {:<16}".format("Excution time:", f"{self._execution_time:,}"))
         print("{:<16} {:<16}".format("Total shares:", self.getTotalShares()))
         print("{:<16} {:<16}".format("Total cost:", self.getTotalCosts()))
         print("{:<16} {:<16}".format("Total Dividends:", self.getTotalDividends()))

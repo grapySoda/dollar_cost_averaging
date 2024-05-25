@@ -3,9 +3,7 @@ import datetime
 import pandas as pd
 from FinMind.data import DataLoader
 import matplotlib.pyplot as plt
-from matplotlib.dates import DateFormatter
 from matplotlib.ticker import FuncFormatter
-from matplotlib.widgets import Cursor
 
 
 class LimitedArray:
