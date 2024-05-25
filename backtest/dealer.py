@@ -46,9 +46,13 @@ class Dealer:
     def sell(self, path):
         return False
 
-    def plot(self, id, plotList):
-        self._stocks[id].plot(self._strat_date, self._end_date, plotList, self._figures)
+    def genFig(self, id, plotList, figName):
+        fig, ax = self._stocks[id].plot(
+            self._strat_date, self._end_date, plotList, self._figures, figName
+        )
         self._figures += 1
+
+        return fig, ax
 
     def show(self):
         cursor = Cursor(plt.gca(), useblit=True, color="red", linewidth=1)

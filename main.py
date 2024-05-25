@@ -1,5 +1,6 @@
 from backtest import Stock
 from backtest import Dealer
+from backtest import Window
 
 import pandas as pd
 import datetime
@@ -27,8 +28,11 @@ import matplotlib.pyplot as plt
 # START_DATE = "2021-07-01"
 # END_DATE = "2024-05-17"
 
-START_DATE = "2012-06-22"
-END_DATE = "2024-05-17"
+# START_DATE = "2012-06-22"
+# END_DATE = "2024-05-17"
+
+START_DATE = "2021-01-22"
+END_DATE = "2022-01-17"
 
 # START_DATE = "2020-06-22"
 # END_DATE = "2024-05-17"
@@ -50,14 +54,7 @@ if __name__ == "__main__":
     dealer.add(TOGET_STOCK)
 
     date_iterator = dealer.getDateIterator(TOGET_STOCK)
-    # date_iterator = date_iterator.date
 
-    # start_time = time.time()
-    # nextDividendDay = stock6208.getNextDividendDay(START_DATE)
-    # stocks[TOGET_STOCK].plot(START_DATE, END_DATE)
-    # nextDividendDay = stocks[TOGET_STOCK].getNextDividendDay(START_DATE)
-
-    # dividendDate, dividendStock, dividendCash = dealer.getNextDividendDay(TOGET_STOCK)
     dividendDate = dealer.getNextDividendDay(TOGET_STOCK)
     prev_month = None
     lastDate = None
@@ -88,27 +85,26 @@ if __name__ == "__main__":
     )
     print("cash: ", f"{dealer._cash:,}")
 
-    # plotList = ["close","5MA", "20MA", "60MA", "240MA", "DailyAsset"]
+    window = Window("Matplotlib with Tabs")
+    # plotList = ["close","5MA", "20MA", "60MA", "240MA", "DailyAsset", "DailyCost", "ROI", "5BIOS", "20BIOS", "60BIOS", "240BIOS"]
+    plotName = "Price"
     plotList = ["close", "5MA", "20MA", "60MA", "240MA"]
-    dealer.plot(TOGET_STOCK, plotList)
+    fig1, ax1 = dealer.genFig(TOGET_STOCK, plotList, plotName)
+    window.addTab(plotName, fig1, ax1)
 
+    plotName = "Accumulated Asset"
     plotList = ["DailyAsset", "DailyCost"]
-    dealer.plot(TOGET_STOCK, plotList)
+    fig2, ax2 = dealer.genFig(TOGET_STOCK, plotList, plotName)
+    window.addTab(plotName, fig2, ax2)
 
-    plotList = ["ROI", "5BIOS", "20BIOS", "60BIOS", "240BIOS"]
-    # plotList = ["ROI", "20BIOS"]
-    dealer.plot(TOGET_STOCK, plotList)
+    plotName = "BIOS"
+    plotList = ["5BIOS", "20BIOS", "60BIOS", "240BIOS"]
+    fig3, ax3 = dealer.genFig(TOGET_STOCK, plotList, plotName)
+    window.addTab(plotName, fig3, ax3)
 
-    dealer.show()
+    plotName = "ROI"
+    plotList = ["ROI"]
+    fig4, ax4 = dealer.genFig(TOGET_STOCK, plotList, plotName)
+    window.addTab(plotName, fig4, ax4)
 
-    # if date == nextDividendDay:
-    # print(
-    #     "{}, {}".format(
-    #         date, stocks[TOGET_STOCK].getDividendDatabaseTotalCash(date)
-    #     )
-    # )
-    # nextDividendDay = stock6208.getNextDividendDay(date)
-    # nextDividendDay = stocks[TOGET_STOCK].getNextDividendDay(date)
-
-    # end_time = time.time()
-    # print("Excution time：", end_time - start_time, " sec")
+    window.show()

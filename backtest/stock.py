@@ -57,28 +57,29 @@ class Stock:
         self.getPriceDatabase()
         self.getDividendDatabase()
 
-    def plot(self, start_date, end_date, plotList, figureIdx):
+    def plot(self, start_date, end_date, plotList, figureIdx, figName="Stock Data"):
         mask = (self._price["date"] >= start_date) & (self._price["date"] <= end_date)
         df_filtered = self._price.loc[mask]
 
         df_filtered.dropna(subset=plotList, how="all", inplace=True)
 
-        plt.figure(figureIdx, figsize=(12, 6))
+        fig, ax = plt.subplots(figsize=(12, 6), num=figureIdx)
 
         for label in plotList:
-            plt.plot(df_filtered["date"], df_filtered[label], label=label, linewidth=1)
+            ax.plot(df_filtered["date"], df_filtered[label], label=label, linewidth=1)
 
-        plt.title("Stock Data")
-        plt.xlabel("Date")
-        plt.ylabel("Value")
-        plt.legend()
+        ax.set_title(figName)
+        ax.set_xlabel("Date")
+        ax.set_ylabel("Value")
+        ax.legend()
 
         def thousands_formatter(x, pos):
             return f"{x:,.0f}"
 
-        plt.gca().yaxis.set_major_formatter(FuncFormatter(thousands_formatter))
-        plt.grid(True)
-        # plt.gca().xaxis.set_major_formatter(DateFormatter("%Y-%m-%d"))
+        ax.yaxis.set_major_formatter(FuncFormatter(thousands_formatter))
+        ax.grid(True)
+
+        return fig, ax
 
     def str2date(self, date_str):
         return datetime.datetime.strptime(date_str, "%Y-%m-%d").date()
