@@ -16,16 +16,35 @@ class Window:
         self.notebook = ttk.Notebook(self.root)
         self.notebook.pack(fill=tk.BOTH, expand=1)
 
-    def addTab(self, tabName, fig, ax):
+    def addTab(self, tabName, fig1, ax1, fig2=None, ax2=None):
         tab = ttk.Frame(self.notebook)
         self.notebook.add(tab, text=tabName)
-        zp = ZoomPan(ax)
-        fig.canvas.mpl_connect("scroll_event", zp.zoom_factory(1.1))
-        zp.pan_factory()
 
-        canvas = FigureCanvasTkAgg(fig, master=tab)
-        canvas.draw()
-        canvas.get_tk_widget().pack(fill=tk.BOTH, expand=1)
+        if fig2 and ax2:
+            fig2.set_size_inches(12, 3)
+
+            zp = ZoomPan(ax1, ax2)
+            fig1.canvas.mpl_connect("scroll_event", zp.zoom_factory(1.1))
+            zp.pan_factory()
+
+            fig2.canvas.mpl_connect("scroll_event", zp.zoom_factory(1.1))
+            zp.pan_factory()
+
+            canvas1 = FigureCanvasTkAgg(fig1, master=tab)
+            canvas1.draw()
+            canvas1.get_tk_widget().pack(fill=tk.BOTH, expand=1)
+
+            canvas2 = FigureCanvasTkAgg(fig2, master=tab)
+            canvas2.draw()
+            canvas2.get_tk_widget().pack(fill=tk.BOTH, expand=1)
+        else:
+            zp = ZoomPan(ax1)
+            fig1.canvas.mpl_connect("scroll_event", zp.zoom_factory(1.1))
+            zp.pan_factory()
+
+            canvas1 = FigureCanvasTkAgg(fig1, master=tab)
+            canvas1.draw()
+            canvas1.get_tk_widget().pack(fill=tk.BOTH, expand=1)
 
     def on_closing(self):
         plt.close("all")
@@ -36,11 +55,15 @@ class Window:
 
 
 class ZoomPan:
-    def __init__(self, ax):
-        self.ax = ax
+    def __init__(self, ax1, ax2=None):
+        self.ax1 = ax1
+        self.ax2 = ax2
         self.press = None
-        self.cur_xlim = self.ax.get_xlim()
-        self.cur_ylim = self.ax.get_ylim()
+        self.cur_xlim1 = self.ax1.get_xlim()
+        self.cur_ylim1 = self.ax1.get_ylim()
+        if self.ax2:
+            self.cur_xlim2 = self.ax2.get_xlim()
+            self.cur_ylim2 = self.ax2.get_ylim()
         self.x0 = None
         self.y0 = None
         self.x1 = None
@@ -50,8 +73,11 @@ class ZoomPan:
 
     def zoom_factory(self, base_scale=1.1):
         def zoom(event):
-            cur_xlim = self.ax.get_xlim()
-            cur_ylim = self.ax.get_ylim()
+            cur_xlim1 = self.ax1.get_xlim()
+            cur_ylim1 = self.ax1.get_ylim()
+            if self.ax2:
+                cur_xlim2 = self.ax2.get_xlim()
+                cur_ylim2 = self.ax2.get_ylim()
             xdata = event.xdata  # get event x location
             ydata = event.ydata  # get event y location
             if event.button == "up":
@@ -65,49 +91,82 @@ class ZoomPan:
                 scale_factor = 1
                 print(event.button)
 
-            new_width = (cur_xlim[1] - cur_xlim[0]) * scale_factor
-            new_height = (cur_ylim[1] - cur_ylim[0]) * scale_factor
+            new_width1 = (cur_xlim1[1] - cur_xlim1[0]) * scale_factor
+            new_height1 = (cur_ylim1[1] - cur_ylim1[0]) * scale_factor
 
-            relx = (cur_xlim[1] - xdata) / (cur_xlim[1] - cur_xlim[0])
-            rely = (cur_ylim[1] - ydata) / (cur_ylim[1] - cur_ylim[0])
+            if self.ax2:
+                new_width2 = (cur_xlim2[1] - cur_xlim2[0]) * scale_factor
+                new_height2 = (cur_ylim2[1] - cur_ylim2[0]) * scale_factor
 
-            self.ax.set_xlim(
-                [xdata - new_width * (1 - relx), xdata + new_width * (relx)]
+            relx = (cur_xlim1[1] - xdata) / (cur_xlim1[1] - cur_xlim1[0])
+            rely = (cur_ylim1[1] - ydata) / (cur_ylim1[1] - cur_ylim1[0])
+
+            self.ax1.set_xlim(
+                [xdata - new_width1 * (1 - relx), xdata + new_width1 * (relx)]
             )
-            self.ax.set_ylim(
-                [ydata - new_height * (1 - rely), ydata + new_height * (rely)]
+            self.ax1.set_ylim(
+                [ydata - new_height1 * (1 - rely), ydata + new_height1 * (rely)]
             )
-            self.ax.figure.canvas.draw()
+
+            if self.ax2:
+                self.ax2.set_xlim(
+                    [xdata - new_width2 * (1 - relx), xdata + new_width2 * (relx)]
+                )
+                self.ax2.set_ylim(
+                    [ydata - new_height2 * (1 - rely), ydata + new_height2 * (rely)]
+                )
+
+            self.ax1.figure.canvas.draw()
+            if self.ax2:
+                self.ax2.figure.canvas.draw()
 
         return zoom
 
     def pan_factory(self):
         def on_press(event):
-            if event.inaxes != self.ax:
+            if event.inaxes != self.ax1 and (self.ax2 and event.inaxes != self.ax2):
                 return
-            self.cur_xlim = self.ax.get_xlim()
-            self.cur_ylim = self.ax.get_ylim()
+            self.cur_xlim1 = self.ax1.get_xlim()
+            self.cur_ylim1 = self.ax1.get_ylim()
+            if self.ax2:
+                self.cur_xlim2 = self.ax2.get_xlim()
+                self.cur_ylim2 = self.ax2.get_ylim()
             self.press = self.x0, self.y0, event.xdata, event.ydata
 
         def on_release(event):
             self.press = None
-            self.ax.figure.canvas.draw()
+            self.ax1.figure.canvas.draw()
+            if self.ax2:
+                self.ax2.figure.canvas.draw()
 
         def on_motion(event):
             if self.press is None:
                 return
-            if event.inaxes != self.ax:
+            if event.inaxes != self.ax1 and (self.ax2 and event.inaxes != self.ax2):
                 return
             x0, y0, xpress, ypress = self.press
             dx = event.xdata - xpress
             dy = event.ydata - ypress
-            self.ax.set_xlim(self.cur_xlim[0] - dx, self.cur_xlim[1] - dx)
-            self.ax.set_ylim(self.cur_ylim[0] - dy, self.cur_ylim[1] - dy)
-            self.ax.figure.canvas.draw()
 
-        self.ax.figure.canvas.mpl_connect("button_press_event", on_press)
-        self.ax.figure.canvas.mpl_connect("button_release_event", on_release)
-        self.ax.figure.canvas.mpl_connect("motion_notify_event", on_motion)
+            self.ax1.set_xlim(self.cur_xlim1[0] - dx, self.cur_xlim1[1] - dx)
+            self.ax1.set_ylim(self.cur_ylim1[0] - dy, self.cur_ylim1[1] - dy)
+
+            if self.ax2:
+                self.ax2.set_xlim(self.cur_xlim2[0] - dx, self.cur_xlim2[1] - dx)
+                self.ax2.set_ylim(self.cur_ylim2[0] - dy, self.cur_ylim2[1] - dy)
+
+            self.ax1.figure.canvas.draw()
+            if self.ax2:
+                self.ax2.figure.canvas.draw()
+
+        self.ax1.figure.canvas.mpl_connect("button_press_event", on_press)
+        self.ax1.figure.canvas.mpl_connect("button_release_event", on_release)
+        self.ax1.figure.canvas.mpl_connect("motion_notify_event", on_motion)
+
+        if self.ax2:
+            self.ax2.figure.canvas.mpl_connect("button_press_event", on_press)
+            self.ax2.figure.canvas.mpl_connect("button_release_event", on_release)
+            self.ax2.figure.canvas.mpl_connect("motion_notify_event", on_motion)
 
 
 def create_plot():
@@ -127,7 +186,8 @@ if __name__ == "__main__":
     window.addTab("Plot 1", fig1, ax1)
 
     fig2, ax2 = create_plot()
-    window.addTab("Plot 2", fig2, ax2)
+    fig22, ax22 = create_plot()
+    window.addTab("Plot 2", fig2, ax2, fig22, ax22)
 
     fig3, ax3 = create_plot()
     window.addTab("Plot 3", fig3, ax3)
