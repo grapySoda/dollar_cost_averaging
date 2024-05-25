@@ -46,7 +46,7 @@ class Dealer:
     def sell(self, path):
         return False
 
-    def genFig(self, id, plotList, figName):
+    def genFig(self, id, figName, plotList):
         fig, ax = self._stocks[id].plot(
             self._strat_date, self._end_date, plotList, self._figures, figName
         )
@@ -100,7 +100,7 @@ class Dealer:
     def getCosts(self, id):
         return self._stocks[id]._cost
 
-    def getAccumulatedDividends(self, id):
+    def getTotalDividends(self, id):
         return self._stocks[id]._accumulatedDividends
 
     def getNextDividendDay(self, id):

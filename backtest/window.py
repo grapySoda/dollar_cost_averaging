@@ -160,13 +160,13 @@ class ZoomPan:
                 return
             x0, y0, xpress, ypress = self.press
             dx = event.xdata - xpress
-            dy = event.ydata - ypress
 
             self.ax1.set_xlim(self.cur_xlim1[0] - dx, self.cur_xlim1[1] - dx)
-            self.ax1.set_ylim(self.cur_ylim1[0] - dy, self.cur_ylim1[1] - dy)
+            self.ax1.set_ylim(self.cur_ylim1[0], self.cur_ylim1[1])
 
             if self.ax2:
                 self.ax2.set_xlim(self.cur_xlim2[0] - dx, self.cur_xlim2[1] - dx)
+                self.ax2.set_ylim(self.cur_ylim2[0], self.cur_ylim2[1])
 
             self.ax1.figure.canvas.draw()
             if self.ax2:
