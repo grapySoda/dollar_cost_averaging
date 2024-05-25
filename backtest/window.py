@@ -46,9 +46,23 @@ class Window:
             canvas1.draw()
             canvas1.get_tk_widget().pack(fill=tk.BOTH, expand=1)
 
+        reset_button = tk.Button(
+            tab, text="Reset", command=lambda: self.reset_plot(ax1, ax2, zp)
+        )
+        reset_button.pack()
+
     def on_closing(self):
         plt.close("all")
         self.root.destroy()
+
+    def reset_plot(self, ax1, ax2, zp):
+        ax1.set_xlim(zp.init_xlim1)
+        ax1.set_ylim(zp.init_ylim1)
+        ax1.figure.canvas.draw()
+        if ax2:
+            ax2.set_xlim(zp.init_xlim2)
+            ax2.set_ylim(zp.init_ylim2)
+            ax2.figure.canvas.draw()
 
     def show(self):
         self.root.mainloop()
@@ -59,6 +73,11 @@ class ZoomPan:
         self.ax1 = ax1
         self.ax2 = ax2
         self.press = None
+        self.init_xlim1 = self.ax1.get_xlim()
+        self.init_ylim1 = self.ax1.get_ylim()
+        if self.ax2:
+            self.init_xlim2 = self.ax2.get_xlim()
+            self.init_ylim2 = self.ax2.get_ylim()
         self.cur_xlim1 = self.ax1.get_xlim()
         self.cur_ylim1 = self.ax1.get_ylim()
         if self.ax2:
