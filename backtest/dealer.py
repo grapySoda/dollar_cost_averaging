@@ -3,17 +3,19 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Cursor
 
+TAX_TAIWAN = 1.003
+
 
 class Dealer:
 
     def __init__(
-        self, token, strat_date, end_date, commissionRatio=0.0, commissionCash=0
+        self, token, start_date, end_date, commissionRatio=0.0, commissionCash=0
     ):
         self._figures = 1
         self._cash = 0
         self._stocks = {}
         self._token = token
-        self._strat_date = strat_date
+        self._start_date = start_date
         self._end_date = end_date
         if commissionRatio > 1.0 or commissionRatio == 0.0:
             self._commissionRatio = commissionRatio
@@ -48,7 +50,7 @@ class Dealer:
 
     def genFig(self, id, figName, plotList):
         fig, ax = self._stocks[id].plot(
-            self._strat_date, self._end_date, plotList, self._figures, figName
+            self._start_date, self._end_date, plotList, self._figures, figName
         )
         self._figures += 1
 
@@ -59,7 +61,7 @@ class Dealer:
         plt.show()
 
     def getDateIterator(self, id):
-        mask = (self._stocks[id]._price["date"] >= pd.to_datetime(self._strat_date)) & (
+        mask = (self._stocks[id]._price["date"] >= pd.to_datetime(self._start_date)) & (
             self._stocks[id]._price["date"] <= pd.to_datetime(self._end_date)
         )
 

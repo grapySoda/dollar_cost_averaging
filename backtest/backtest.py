@@ -2,21 +2,32 @@ from .window import Window
 from .dealer import Dealer
 
 import time
+from datetime import datetime
 from qbstyles import mpl_style
 
 mpl_style(True)
 MONTHLY_INVESTMENT = 36000
+TAX_TAIWAN = 0.003
 
 
 class Backtest:
 
     def __init__(
-        self, token, strat_date, end_date, commissionRatio=0.0, commissionCash=0
+        self, token, start_date, end_date, commissionRatio=0.0, commissionCash=0
     ):
         self._window = Window("Backtest")
         self._dealer = Dealer(
-            token, strat_date, end_date, commissionRatio, commissionCash
+            token, start_date, end_date, commissionRatio, commissionCash
         )
+
+        start = datetime.strptime(start_date, "%Y-%m-%d")
+        end = datetime.strptime(end_date, "%Y-%m-%d")
+        if end.month > start.month or (
+            end.month == start.month and end.day >= start.day
+        ):
+            self._years = end.year - start.year
+        else:
+            self._years = end.year - start.year - 1
 
     def add(self, stock):
         self._stock = stock
@@ -37,8 +48,9 @@ class Backtest:
             current_month = date.strftime("%Y-%m")
             if current_month != prev_month:
                 prev_month = current_month
-                # dealer.buy(TOGET_STOCK, MONTHLY_INVESTMENT, date)
+                # self._dealer.buy(TOGET_STOCK, MONTHLY_INVESTMENT, date)
                 self._dealer.buy(self._stock, MONTHLY_INVESTMENT)
+
             self._dealer.updateAsset(self._stock, date)
 
         end_time = time.time()
@@ -60,21 +72,45 @@ class Backtest:
             self._window.addTab(tabName, fig, ax)
 
     def printResult(self):
-        print("{:<16} {:<16}".format("Excution time:", f"{self._execution_time:,}"))
-        print("{:<16} {:<16}".format("Total shares:", self.getTotalShares()))
-        print("{:<16} {:<16}".format("Total cost:", self.getTotalCosts()))
-        print("{:<16} {:<16}".format("Total Dividends:", self.getTotalDividends()))
-        print("{:<16} {:<16}".format("Total Asset:", self.getTotalAsset()))
+        roi = f"{self.getRoi():,}"
+        irr = f"{self.getIrr():,}"
+        asset = f"{int(self.getTotalAsset()*(1-TAX_TAIWAN)):,}"
+        dividends = f"{int(self.getTotalDividends()):,}"
+        costs = f"{int(self.getTotalCosts()):,}"
+        tax = f"{int(self.getTotalAsset()*TAX_TAIWAN):,}"
+        shares = f"{int(self.getTotalShares()):,}"
+        elapsed = f"{round(float(self._execution_time), 2):,}"
+
+        print("{:<16} {:>11} %".format("ROI:", roi))
+        print("{:<16} {:>11} %".format("IRR:", irr))
+        print("{:<16} {:>11} NTD".format("Total asset:", asset))
+        print("{:<16} {:>11} NTD".format("Total dividends:", dividends))
+        print("{:<16} {:>11} NTD".format("Total costs:", costs))
+        print("{:<16} {:>11} NTD".format("Total tax:", tax))
+        print("{:<16} {:>11} shares".format("Total shares:", shares))
+        print("{:<16} {:>11} seconds".format("Elapsed time:", elapsed))
+
+    def getRoi(self):
+        return round(
+            float(
+                (self.getTotalAsset() - self.getTotalCosts())
+                / self.getTotalCosts()
+                * 100
+            ),
+            2,
+        )
+
+    def getIrr(self):
+        return round(float((((self.getRoi() + 1) ** (1 / self._years)) - 1) * 100), 2)
 
     def getTotalAsset(self):
-        _asset = self._dealer.getCurrentValue(self._stock, "DailyAsset")
-        return f"{_asset:,}"
+        return round(float(self._dealer.getCurrentValue(self._stock, "DailyAsset")), 2)
 
     def getTotalShares(self):
-        return f"{self._dealer.getShares(self._stock):,}"
+        return round(float(self._dealer.getShares(self._stock)), 2)
 
     def getTotalCosts(self):
-        return f"{self._dealer.getCosts(self._stock):,}"
+        return round(float(self._dealer.getCosts(self._stock)), 2)
 
     def getTotalDividends(self):
-        return f"{self._dealer.getTotalDividends(self._stock):,}"
+        return round(float(self._dealer.getTotalDividends(self._stock)), 2)
