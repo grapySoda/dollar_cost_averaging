@@ -8,6 +8,34 @@ from matplotlib.widgets import Cursor
 
 
 class Window:
+    def __init__(self, title):
+        self.root = tk.Tk()
+        self.root.title("Matplotlib with Tabs")
+        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
+
+        self.notebook = ttk.Notebook(self.root)
+        self.notebook.pack(fill=tk.BOTH, expand=1)
+
+    def addTab(self, tabName, fig, ax):
+        tab = ttk.Frame(self.notebook)
+        self.notebook.add(tab, text=tabName)
+        zp = ZoomPan(ax)
+        fig.canvas.mpl_connect("scroll_event", zp.zoom_factory(1.1))
+        zp.pan_factory()
+
+        canvas = FigureCanvasTkAgg(fig, master=tab)
+        canvas.draw()
+        canvas.get_tk_widget().pack(fill=tk.BOTH, expand=1)
+
+    def on_closing(self):
+        plt.close("all")
+        self.root.destroy()
+
+    def show(self):
+        self.root.mainloop()
+
+
+class ZoomPan:
     def __init__(self, ax):
         self.ax = ax
         self.press = None
@@ -82,46 +110,26 @@ class Window:
         self.ax.figure.canvas.mpl_connect("motion_notify_event", on_motion)
 
 
-def create_plot(tab):
+def create_plot():
     fig = Figure(figsize=(12, 6))
     ax = fig.add_subplot(111)
     x = np.linspace(0, 10, 100)
     y = np.sin(x)
     ax.plot(x, y)
-    # cursor = Cursor(ax, useblit=True, color="red", linewidth=1)
 
-    zp = Window(ax)
-    fig.canvas.mpl_connect("scroll_event", zp.zoom_factory(1.1))
-    zp.pan_factory()
-
-    canvas = FigureCanvasTkAgg(fig, master=tab)
-    canvas.draw()
-    canvas.get_tk_widget().pack(fill=tk.BOTH, expand=1)
-
-
-def on_closing():
-    plt.close("all")
-    root.destroy()
+    return fig, ax
 
 
 if __name__ == "__main__":
-    root = tk.Tk()
-    root.title("Matplotlib with Tabs")
-    root.protocol("WM_DELETE_WINDOW", on_closing)
+    window = Window("Matplotlib with Tabs")
 
-    notebook = ttk.Notebook(root)
-    notebook.pack(fill=tk.BOTH, expand=1)
+    fig1, ax1 = create_plot()
+    window.addTab("Plot 1", fig1, ax1)
 
-    tab1 = ttk.Frame(notebook)
-    tab2 = ttk.Frame(notebook)
-    tab3 = ttk.Frame(notebook)
+    fig2, ax2 = create_plot()
+    window.addTab("Plot 2", fig2, ax2)
 
-    notebook.add(tab1, text="Plot 1")
-    notebook.add(tab2, text="Plot 2")
-    notebook.add(tab3, text="Plot 3")
+    fig3, ax3 = create_plot()
+    window.addTab("Plot 3", fig3, ax3)
 
-    create_plot(tab1)
-    create_plot(tab2)
-    create_plot(tab3)
-
-    root.mainloop()
+    window.show()
