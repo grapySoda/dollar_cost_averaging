@@ -25,6 +25,9 @@ class Dealer:
 
     def add(self, id):
         self._stocks[id] = Stock(id, self._token)
+        start, end = self.getDuration(id)
+        self._start_date = start
+        self._end_date = end
 
     def buy(self, id, cash, date=None):
         shares = 0
@@ -121,6 +124,7 @@ class Dealer:
 
     def updateAsset(self, id, date):
         currentPrice = self.getCurrentValue(id, "price")
+        duration = date - self._start_date
 
         dailyAsset = int(
             currentPrice * self._stocks[id]._shares + self._stocks[id]._asset
@@ -128,10 +132,18 @@ class Dealer:
         dailyCost = self._stocks[id]._cost
         ROI = (dailyAsset / dailyCost - 1) * 100
 
+        if duration.days < 365:
+            IRR = 0
+        else:
+            years = duration.days / 365.25
+            IRR = (((dailyAsset / dailyCost) ** (1 / years)) - 1) * 100
+
         self.setCurrentValue(id, "DailyAsset", dailyAsset)
         self.setCurrentValue(id, "DailyCost", dailyCost)
         self.setCurrentValue(id, "ROI", ROI)
+        self.setCurrentValue(id, "IRR", IRR)
 
         self.setValueByDate(id, date, "DailyAsset", dailyAsset)
         self.setValueByDate(id, date, "DailyCost", dailyCost)
         self.setValueByDate(id, date, "ROI", ROI)
+        self.setValueByDate(id, date, "IRR", IRR)

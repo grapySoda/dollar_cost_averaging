@@ -29,14 +29,14 @@ END_DATE = "2024-11-20"
 # END_DATE = "2024-05-17"
 
 MONTHLY_INVESTMENT = 36000
-# TOGET_STOCK = "0050"
-TOGET_STOCK = "006208"
+# STOCK_ID = "0050"
+STOCK_ID = "006208"
 
 
 def genPrice(dealer):
     plotName = "Price"
     plotList = ["close", "5MA", "20MA", "60MA", "240MA"]
-    fig, ax = dealer.genFig(TOGET_STOCK, plotList, plotName)
+    fig, ax = dealer.genFig(STOCK_ID, plotList, plotName)
     return fig, ax
 
 
@@ -50,7 +50,7 @@ if __name__ == "__main__":
         exit()
 
     backtest = Backtest(token, START_DATE, END_DATE, commissionCash=1)
-    backtest.add(TOGET_STOCK)
+    backtest.add(STOCK_ID)
 
     backtest.run()
 
@@ -58,11 +58,13 @@ if __name__ == "__main__":
     plotDailyList = ("Daily", ["DailyAsset", "DailyCost"])
     plotBiosList = ("BIOS", ["5BIOS", "20BIOS", "60BIOS", "240BIOS"])
     plotRoiList = ("ROI", ["ROI"])
+    plotIrrList = ("IRR", ["IRR"])
 
     backtest.addTab("Price", plotPriceList)
     backtest.addTab("Accumulated Asset", plotPriceList, plotDailyList)
     backtest.addTab("BIOS", plotPriceList, plotBiosList)
     backtest.addTab("ROI", plotPriceList, plotRoiList)
+    backtest.addTab("IRR", plotPriceList, plotIrrList)
 
     backtest.printResult()
 
