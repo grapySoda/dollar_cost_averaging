@@ -73,6 +73,7 @@ class Backtest:
         irr = f"{self.getIrr():,}"
         asset = f"{int(self.getTotalAsset()*(1-TAX_TAIWAN)):,}"
         dividends = f"{int(self.getTotalDividends()):,}"
+        profit = f"{int(self.getTotalAsset() * (1 - TAX_TAIWAN))- int(self.getTotalDividends())- int(self.getTotalCosts()):,}"
         costs = f"{int(self.getTotalCosts()):,}"
         tax = f"{int(self.getTotalAsset()*TAX_TAIWAN):,}"
         shares = f"{int(self.getTotalShares()):,}"
@@ -93,6 +94,7 @@ class Backtest:
         print("{:<16} {:>11} %".format("ROI:", roi))
         print("{:<16} {:>11} %".format("IRR:", irr))
         print("{:<16} {:>11} NTD".format("Total asset:", asset))
+        print("{:<16} {:>11} NTD".format("Total profit:", profit))
         print("{:<16} {:>11} NTD".format("Total dividends:", dividends))
         print("{:<16} {:>11} NTD".format("Total costs:", costs))
         print("{:<16} {:>11} NTD".format("Total tax:", tax))
