@@ -25,8 +25,8 @@ class Backtest:
         self._dealer.add(stock)
         self._date_iterator = self._dealer.getDateIterator(stock)
         self._dividendDate = self._dealer.getNextDividendDay(stock)
-        start, end = self._dealer.getDuration(stock)
-        duration = end - start
+        # start, end = self._dealer.getDuration(stock)
+        duration = self._dealer._end_date - self._dealer._start_date
         self._years = duration.days / 365.25
 
     def run(self):
@@ -39,11 +39,14 @@ class Backtest:
                     self._dealer.exDividend(self._stock)
                     self._dividendDate = self._dealer.getNextDividendDay(self._stock)
 
+            ### Strategy 01
             current_month = date.strftime("%Y-%m")
             if current_month != prev_month:
                 prev_month = current_month
                 # self._dealer.buy(TOGET_STOCK, MONTHLY_INVESTMENT, date)
                 self._dealer.buy(self._stock, MONTHLY_INVESTMENT)
+
+            ### Strategy 02
 
             self._dealer.updateAsset(self._stock, date)
 
@@ -76,6 +79,17 @@ class Backtest:
         years = f"{round(float(self._years), 2):,}"
         elapsed = f"{round(float(self._execution_time), 2):,}"
 
+        print("{:<16} {:>11}".format("Stock:", self._stock))
+        print(
+            "{:<16} {:>11}".format(
+                "Start date:", "{}".format(self._dealer._start_date.date())
+            )
+        )
+        print(
+            "{:<16} {:>11}".format(
+                "End date:", "{}".format(self._dealer._end_date.date())
+            )
+        )
         print("{:<16} {:>11} %".format("ROI:", roi))
         print("{:<16} {:>11} %".format("IRR:", irr))
         print("{:<16} {:>11} NTD".format("Total asset:", asset))

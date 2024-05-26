@@ -2,6 +2,7 @@ from .stock import Stock
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Cursor
+from datetime import datetime
 
 TAX_TAIWAN = 1.003
 
@@ -15,8 +16,8 @@ class Dealer:
         self._cash = 0
         self._stocks = {}
         self._token = token
-        self._start_date = start_date
-        self._end_date = end_date
+        self._start_date = datetime.strptime(start_date, "%Y-%m-%d")
+        self._end_date = datetime.strptime(end_date, "%Y-%m-%d")
         if commissionRatio > 1.0 or commissionRatio == 0.0:
             self._commissionRatio = commissionRatio
         else:
@@ -26,8 +27,10 @@ class Dealer:
     def add(self, id):
         self._stocks[id] = Stock(id, self._token)
         start, end = self.getDuration(id)
-        self._start_date = start
-        self._end_date = end
+        if self._start_date < start:
+            self._start_date = start
+        if self._end_date > end:
+            self._end_date = end
 
     def buy(self, id, cash, date=None):
         shares = 0
