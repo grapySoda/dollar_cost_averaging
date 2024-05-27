@@ -34,6 +34,7 @@ class Backtest:
         prev_month = None
         for date in self._date_iterator:
             self._dealer.updateInfo(self._stock, date)
+            self._dealer.updateAsset(self._stock, date)
             if self._dividendDate is not None:
                 if date >= self._dividendDate:
                     self._dealer.exDividend(self._stock)
@@ -43,8 +44,8 @@ class Backtest:
             current_month = date.strftime("%Y-%m")
             if current_month != prev_month:
                 prev_month = current_month
-                # self._dealer.buy(TOGET_STOCK, MONTHLY_INVESTMENT, date)
                 self._dealer.buy(self._stock, MONTHLY_INVESTMENT)
+                self._dealer.updateAsset(self._stock, date)
 
             ### Strategy 02
 
@@ -76,6 +77,7 @@ class Backtest:
         profit = f"{int(self.getTotalAsset() * (1 - TAX_TAIWAN))- int(self.getTotalDividends())- int(self.getTotalCosts()):,}"
         costs = f"{int(self.getTotalCosts()):,}"
         tax = f"{int(self.getTotalAsset()*TAX_TAIWAN):,}"
+        cash = f"{int(self.getCash()):,}"
         shares = f"{int(self.getTotalShares()):,}"
         years = f"{round(float(self._years), 2):,}"
         elapsed = f"{round(float(self._execution_time), 2):,}"
@@ -98,6 +100,7 @@ class Backtest:
         print("{:<16} {:>11} NTD".format("Total dividends:", dividends))
         print("{:<16} {:>11} NTD".format("Total costs:", costs))
         print("{:<16} {:>11} NTD".format("Total tax:", tax))
+        print("{:<16} {:>11} NTD".format("Now cash:", cash))
         print("{:<16} {:>11} shares".format("Total shares:", shares))
         print("{:<16} {:>11} years".format("Duration:", years))
         print("{:<16} {:>11} seconds".format("Elapsed time:", elapsed))
@@ -126,6 +129,9 @@ class Backtest:
 
     def getTotalAsset(self):
         return round(float(self._dealer.getCurrentValue(self._stock, "DailyAsset")), 2)
+
+    def getCash(self):
+        return int(self._dealer._cash)
 
     def getTotalShares(self):
         return round(float(self._dealer.getShares(self._stock)), 2)

@@ -133,9 +133,12 @@ class Dealer:
             currentPrice * self._stocks[id]._shares + self._stocks[id]._asset
         )
         dailyCost = self._stocks[id]._cost
-        ROI = (dailyAsset / dailyCost - 1) * 100
+        if dailyCost == 0:
+            ROI = 0
+        else:
+            ROI = (dailyAsset / dailyCost - 1) * 100
 
-        if duration.days < 365:
+        if duration.days < 365 or dailyCost == 0:
             IRR = 0
         else:
             years = duration.days / 365.25
