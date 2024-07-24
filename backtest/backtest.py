@@ -73,18 +73,27 @@ class Backtest:
             self._window.addTab(tabName, fig, ax)
 
     def printResult(self):
-        roi = f"{self.getRoi():,}"
-        irr = f"{self.getIrr():,}"
-        asset = f"{int(self.getTotalAsset()*(1-TAX_TAIWAN)):,}"
-        dividends = f"{int(self.getTotalDividends()):,}"
-        profit = f"{int(self.getTotalAsset() * (1 - TAX_TAIWAN))- int(self.getTotalDividends())- int(self.getTotalCosts()):,}"
-        costs = f"{int(self.getTotalCosts()):,}"
-        tax = f"{int(self.getTotalAsset()*TAX_TAIWAN):,}"
+        raw_roi = self.getRoi()
+        raw_irr = self.getIrr()
+        raw_asset = int(self.getTotalAsset() * (1 - TAX_TAIWAN))
+        raw_dividends = int(self.getTotalDividends())
+        raw_profit = int(self.getTotalAsset() * (1 - TAX_TAIWAN)) - int((self.getTotalDividends())) - int((self.getTotalCosts()))
+        raw_costs = int(self.getTotalCosts())
+        raw_tax = int(self.getTotalAsset() * TAX_TAIWAN)
+
+        roi = f"{raw_roi:,}"
+        irr = f"{raw_irr:,}"
+        asset = f"{raw_asset:,}"
+        dividends = f"{raw_dividends:,}"
+        profit = f"{raw_profit:,}"
+        costs = f"{raw_costs:,}"
+        tax = f"{raw_tax:,}"
         cash = f"{int(self.getCash()):,}"
         shares = f"{int(self.getTotalShares()):,}"
         years = f"{round(float(self._years), 2):,}"
         elapsed = f"{round(float(self._execution_time), 2):,}"
 
+        print("\n\n----------------------- {} Report -----------------------".format(self._stock))
         print("{:<16} {:>11}".format("Stock:", self._stock))
         print(
             "{:<16} {:>11}".format(
@@ -107,6 +116,8 @@ class Backtest:
         print("{:<16} {:>11} shares".format("Total shares:", shares))
         print("{:<16} {:>11} years".format("Duration:", years))
         print("{:<16} {:>11} seconds".format("Elapsed time:", elapsed))
+
+        return (self._stock, raw_roi, raw_irr, raw_asset, raw_profit, raw_dividends, raw_costs, raw_tax)
 
     def getRoi(self):
         return round(
