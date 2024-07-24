@@ -138,7 +138,7 @@ class Stock:
         )
 
     def getPriceDatabase(self):
-        name = "taiwan_stock_daily"
+        name = "stock_daily"
         filePath = "database/{}/{}.csv".format(name, self._id)
 
         if os.path.exists(filePath):
@@ -164,7 +164,8 @@ class Stock:
                 }
                 data = requests.get(url, params=parameter)
                 data = data.json()
-                self._price = pd.DataFrame(data['data'])
+                data = pd.DataFrame(data['data'])
+                self._price = data.rename(columns={"Close": "close"})
 
             ### remove the empty price
             self._price = self._price[self._price["close"] != 0]
@@ -193,7 +194,7 @@ class Stock:
         self._price["ROI"] = 0.0
 
     def getDividendDatabase(self):
-        name = "taiwan_stock_dividend"
+        name = "stock_dividend"
         filePath = "database/{}/{}.csv".format(name, self._id)
 
         if os.path.exists(filePath):
@@ -202,28 +203,41 @@ class Stock:
             self._dividend["date"] = pd.to_datetime(self._dividend["date"])
         else:
             print("Start to download {}".format(filePath))
-            self._dividend = self._api.taiwan_stock_dividend(
-                stock_id=self._id,
-                start_date=self._start_date,
-            )
+            if (self._country == "tw" or self._country == "TW"):
+                self._dividend = self._api.taiwan_stock_dividend(
+                    stock_id=self._id,
+                    start_date=self._start_date,
+                )
 
-            self._dividend["TotalStock"] = (
-                self._dividend["StockEarningsDistribution"]
-                + self._dividend["StockStatutorySurplus"]
-            )
-            self._dividend["TotalCash"] = (
-                self._dividend["CashEarningsDistribution"]
-                + self._dividend["CashStatutorySurplus"]
-            )
-            self._dividend = self._dividend[
-                [
-                    "date",
-                    "stock_id",
-                    "CashDividendPaymentDate",
-                    "TotalStock",
-                    "TotalCash",
+                self._dividend["TotalStock"] = (
+                    self._dividend["StockEarningsDistribution"]
+                    + self._dividend["StockStatutorySurplus"]
+                )
+                self._dividend["TotalCash"] = (
+                    self._dividend["CashEarningsDistribution"]
+                    + self._dividend["CashStatutorySurplus"]
+                )
+                self._dividend = self._dividend[
+                    [
+                        "date",
+                        "stock_id",
+                        "CashDividendPaymentDate",
+                        "TotalStock",
+                        "TotalCash",
+                    ]
                 ]
-            ]
+
+            elif (self._country == "us" or self._country == "US"):
+                columns = ["date", "stock_id", "CashDividendPaymentDate", "TotalStock", "TotalCash"]
+                data = {
+                    "date": ["2001-01-02"],
+                    "stock_id": ["QQQ"],
+                    "CashDividendPaymentDate": ["2001-02-02"],
+                    "TotalStock": [0.0],
+                    "TotalCash": [0.0]
+                }
+                self._dividend = pd.DataFrame(data)
+                
             self._dividend["date"] = pd.to_datetime(self._dividend["date"])
 
             if not os.path.exists("database/{}".format(name)):

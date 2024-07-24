@@ -43,10 +43,17 @@ END_DATE = "2024-11-20"
 # START_DATE = "2020-06-22"
 # END_DATE = "2024-05-17"
 
-MONTHLY_INVESTMENT = 36000
-STOCK_ID = "0050"
+# MONTHLY_INVESTMENT = 36000
+# COUNTRY = "tw"
+# STOCK_ID = "0050"
+
+# MONTHLY_INVESTMENT = 36000
+# COUNTRY = "tw"
 # STOCK_ID = "006208"
 
+MONTHLY_INVESTMENT = 36000
+COUNTRY = "us"
+STOCK_ID = "QQQ"
 
 def genPrice(dealer):
     plotName = "Price"
@@ -65,7 +72,7 @@ if __name__ == "__main__":
         exit()
 
     backtest = Backtest(token, START_DATE, END_DATE, commissionCash=1)
-    backtest.add("tw", STOCK_ID)
+    backtest.add(COUNTRY, STOCK_ID)
 
     backtest.run()
 
