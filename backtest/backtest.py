@@ -20,9 +20,9 @@ class Backtest:
             token, start_date, end_date, commissionRatio, commissionCash
         )
 
-    def add(self, stock):
+    def add(self, country, stock):
         self._stock = stock
-        self._dealer.add(stock)
+        self._dealer.add(country, stock)
         self._date_iterator = self._dealer.getDateIterator(stock)
         self._dividendDate = self._dealer.getNextDividendDay(stock)
         # start, end = self._dealer.getDuration(stock)
@@ -48,8 +48,11 @@ class Backtest:
                 self._dealer.updateAsset(self._stock, date)
 
             ### Strategy 02
-
-            self._dealer.updateAsset(self._stock, date)
+            # IRR = self._dealer.getCurrentValue(self._stock, "IRR")
+            # if current_month != prev_month:
+            #     prev_month = current_month
+            #     self._dealer.buy(self._stock, MONTHLY_INVESTMENT)
+            #     self._dealer.updateAsset(self._stock, date)
 
         end_time = time.time()
         self._execution_time = end_time - start_time

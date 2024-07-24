@@ -4,8 +4,8 @@ from backtest import Backtest
 # START_DATE = "1960-4-15"
 # END_DATE = "2022-11-20"
 
-# START_DATE = "1960-4-15"
-# END_DATE = "2024-11-20"
+START_DATE = "1960-4-15"
+END_DATE = "2024-11-20"
 
 # START_DATE = "2004-4-15"
 # END_DATE = "2008-11-20"
@@ -13,8 +13,8 @@ from backtest import Backtest
 # START_DATE = "2008-4-15"
 # END_DATE = "2011-05-17"
 
-START_DATE = "2008-4-15"
-END_DATE = "2014-05-17"
+# START_DATE = "2008-4-15"
+# END_DATE = "2014-05-17"
 
 # START_DATE = "2008-4-15"
 # END_DATE = "2024-11-20"
@@ -65,7 +65,7 @@ if __name__ == "__main__":
         exit()
 
     backtest = Backtest(token, START_DATE, END_DATE, commissionCash=1)
-    backtest.add(STOCK_ID)
+    backtest.add("tw", STOCK_ID)
 
     backtest.run()
 

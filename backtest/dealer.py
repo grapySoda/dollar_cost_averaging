@@ -7,6 +7,20 @@ from datetime import datetime
 TAX_TAIWAN = 1.003
 
 
+class Transaction:
+    def __init__(self, stock, date, price, quantity, cost, action, roi=0):
+        self.stock = stock
+        self.date = datetime.strptime(date, "%Y/%m/%d")
+        self.price = price
+        self.quantity = quantity
+        self.cost = cost
+        self.action = action
+        self.roi = roi
+
+    def __repr__(self):
+        return f"Transaction(date={self.date.strftime('%Y/%m/%d')}, price={self.price}, quantity={self.quantity}, cost={self.cost})"
+
+
 class Dealer:
 
     def __init__(
@@ -24,8 +38,8 @@ class Dealer:
             self._commissionRatio = 1 + commissionRatio
         self._commissionCash = commissionCash
 
-    def add(self, id):
-        self._stocks[id] = Stock(id, self._token)
+    def add(self, country, id):
+        self._stocks[id] = Stock(country, id, self._token)
         start, end = self.getDuration(id)
         if self._start_date < start:
             self._start_date = start
@@ -51,8 +65,26 @@ class Dealer:
         self._stocks[id]._cost += cost
         self._cash += cash - cost
 
-    def sell(self, path):
-        return False
+    def sell(self, id, shares=None, date=None):
+        if date is not None:
+            currentPrice = self.getValueByDate(id, date, "close")
+        else:
+            currentPrice = self.getCurrentValue(id, "price")
+
+        if shares is None:
+            _shares = self._stocks[id]._shares
+            self._stocks[id]._shares = 0
+
+            if self._commissionRatio != 0.0:
+                profit = int(
+                    (shares * currentPrice * self._commissionRatio) * (1 - TAX_TAIWAN)
+                )
+            elif self._commissionCash != 0:
+                profit = int(
+                    (shares * currentPrice + self._commissionCash) * (1 - TAX_TAIWAN)
+                )
+
+            self._cash += profit
 
     def genFig(self, id, figName, plotList):
         fig, ax = self._stocks[id].plot(

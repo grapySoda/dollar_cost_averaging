@@ -1,5 +1,6 @@
 import os
 import datetime
+import requests
 import pandas as pd
 from FinMind.data import DataLoader
 import matplotlib.pyplot as plt
@@ -34,13 +35,15 @@ class LimitedArray:
 
 class Stock:
 
-    def __init__(self, id, token):
+    def __init__(self, country, id, token):
         self._start_date = datetime.date(1960, 4, 15)
         self._end_date = datetime.date.today()
         self._id = id
+        self._country = country
         self._api = DataLoader()
         self._api.login_by_token(api_token=token)
         self._dailyAsset = []
+        self._token = token
         self._asset = 0
         self._cost = 0
         self._shares = 0
@@ -144,11 +147,24 @@ class Stock:
             self._price["date"] = pd.to_datetime(self._price["date"])
         else:
             print("Start to download {}".format(filePath))
-            self._price = self._api.taiwan_stock_daily(
-                stock_id=self._id,
-                start_date=self._start_date,
-                end_date=self._end_date,
-            )
+            if (self._country == "tw" or self._country == "TW"):
+                self._price = self._api.taiwan_stock_daily(
+                    stock_id=self._id,
+                    start_date=self._start_date,
+                    end_date=self._end_date,
+                )
+            elif (self._country == "us" or self._country == "US"):
+                url = 'https://api.finmindtrade.com/api/v4/data'
+                parameter = {
+                    "dataset": "USStockPrice",
+                    "data_id": self._id,
+                    "start_date": self._start_date,
+                    "end_date": self._end_date,
+                    "token": self._token,
+                }
+                data = requests.get(url, params=parameter)
+                data = data.json()
+                self._price = pd.DataFrame(data['data'])
 
             ### remove the empty price
             self._price = self._price[self._price["close"] != 0]
