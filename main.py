@@ -5,66 +5,28 @@ from tabulate import tabulate
 from colorama import Fore, Style
 from backtest import Backtest
 
-# START_DATE = "1960-4-15"
-# END_DATE = "2026-11-20"
-
-START_DATE = "2012-12-15"
+START_DATE = "1900-12-15"
 END_DATE = "2026-01-20"
 
-# START_DATE = "2022-4-15"
-# END_DATE = "2026-11-20"
+def singleTask(task):
+    genBacktestPlot(task[0], task[1], task[2], task[3])
 
-# START_DATE = "2004-4-15"
-# END_DATE = "2008-11-20"
+def multiTasks(tasks):
+    results = []
+    # Use ThreadPoolExecutor to manage the thread pool
+    with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+        # Submit all tasks to the thread pool
+        futures = [executor.submit(genBacktest, country, stock_id, start_date, end_date) for country, stock_id, start_date, end_date in tasks]
 
-# START_DATE = "2008-4-15"
-# END_DATE = "2011-05-17"
+        # Wait for all tasks to complete
+        for future in concurrent.futures.as_completed(futures):
+            try:
+                result = future.result()
+                results.append(result)
+            except Exception as exc:
+                print(f'Task generated an exception: {exc}')
 
-# START_DATE = "2008-4-15"
-# END_DATE = "2014-05-17"
-
-# START_DATE = "2008-4-15"
-# END_DATE = "2024-11-20"
-
-# START_DATE = "2008-4-15"
-# END_DATE = "2018-11-20"
-
-# START_DATE = "2010-4-15"
-# END_DATE = "2018-11-20"
-
-# START_DATE = "2010-4-15"
-# END_DATE = "2020-11-20"
-
-# START_DATE = "2012-07-17"
-# END_DATE = "2014-07-17"
-
-# START_DATE = "2021-07-01"
-# END_DATE = "2024-05-17"
-
-# START_DATE = "2012-06-22"
-# END_DATE = "2024-05-17"
-
-# START_DATE = "2021-01-22"
-# END_DATE = "2022-01-17"
-
-# START_DATE = "2020-06-22"
-# END_DATE = "2024-05-17"
-
-# MONTHLY_INVESTMENT = 36000
-# COUNTRY = "tw"
-# STOCK_ID = "0050"
-
-# MONTHLY_INVESTMENT = 36000
-# COUNTRY = "tw"
-# STOCK_ID = "006208"
-
-# MONTHLY_INVESTMENT = 36000
-# COUNTRY = "us"
-# STOCK_ID = "TQQQ"
-
-MONTHLY_INVESTMENT = 36000
-COUNTRY = "us"
-STOCK_ID = "AAPL"
+    printResult(results)
 
 def printResult(results):
     # Convert data to DataFrame
@@ -144,21 +106,7 @@ if __name__ == "__main__":
         ("tw", "0050", START_DATE, END_DATE),
         ("tw", "006208", START_DATE, END_DATE)
     ]
+    multiTasks(tasks)
 
-    results = []
-    # Use ThreadPoolExecutor to manage the thread pool
-    with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
-        # Submit all tasks to the thread pool
-        futures = [executor.submit(genBacktest, country, stock_id, start_date, end_date) for country, stock_id, start_date, end_date in tasks]
-
-        # Wait for all tasks to complete
-        for future in concurrent.futures.as_completed(futures):
-            try:
-                result = future.result()
-                results.append(result)
-            except Exception as exc:
-                print(f'Task generated an exception: {exc}')
-
-    print("All threads have completed")
-    print(results)
-    printResult(results)
+    # task = ("us", "^GSPC", START_DATE, END_DATE)
+    # singleTask(task)
